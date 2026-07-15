@@ -4,12 +4,38 @@ import { ArrowLeft } from 'lucide-react';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { MetricBadge } from '../components/common/MetricBadge';
 import { TimelineViewer, type TimelineEvent } from '../components/timeline/TimelineViewer';
+import { AgentTraceViewer, type AgentTraceStep } from '../components/traces/AgentTraceViewer';
 
 interface LogMessage {
   time: string;
   level: 'INFO' | 'WARN' | 'ERROR';
   message: string;
 }
+
+const MOCK_TRACES: AgentTraceStep[] = [
+  {
+    id: 'trace-1',
+    agentName: 'QA Analyst Agent',
+    prompt: 'Analyze user requirements for Authentication layout and export login workflows.',
+    llmRequest: 'temperature: 0.1, model: gemini-1.5-pro, max_tokens: 1000',
+    rawResponse: '{ "auth_flows": [ "login", "reset_password" ] }',
+    finalJson: '{\n  "auth_flows": [\n    "login",\n    "reset_password"\n  ]\n}',
+    durationMs: 9000,
+    cost: 0.012,
+  },
+  {
+    id: 'trace-2',
+    agentName: 'Script Generation Agent',
+    prompt: 'Write test cases in Playwright format for Login screen validation.',
+    llmRequest: 'temperature: 0.2, model: gemini-1.5-pro, max_tokens: 2000',
+    rawResponse: 'INVALID JSON RESPONSE OBJECT',
+    validationError: 'Expected key-value json response but received markdown text.',
+    repairAttempt: 'Correct the previous output and generate pure JSON format only.',
+    finalJson: '{\n  "test_script": "import { test } from \'@playwright/test\';..."\n}',
+    durationMs: 35000,
+    cost: 0.084,
+  },
+];
 
 const MOCK_TIMELINE_EVENTS: TimelineEvent[] = [
   {
@@ -83,7 +109,7 @@ const MOCK_DETAILS = {
 export const ExecutionDetailPage: React.FC = () => {
   const { executionId } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'logs' | 'raw'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'traces' | 'logs' | 'raw'>('overview');
 
   return (
     <div className="space-y-lg p-lg">
@@ -105,7 +131,7 @@ export const ExecutionDetailPage: React.FC = () => {
 
       {/* Tabs Header */}
       <div className="flex border-b border-bg-secondary space-x-md">
-        {(['overview', 'timeline', 'logs', 'raw'] as const).map((tab) => (
+        {(['overview', 'timeline', 'traces', 'logs', 'raw'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -115,7 +141,7 @@ export const ExecutionDetailPage: React.FC = () => {
                 : 'border-transparent text-text-muted hover:text-text-main'
             }`}
           >
-            {tab}
+            {tab === 'traces' ? 'Agent Traces' : tab}
           </button>
         ))}
       </div>
@@ -183,6 +209,10 @@ export const ExecutionDetailPage: React.FC = () => {
 
       {activeTab === 'timeline' && (
         <TimelineViewer events={MOCK_TIMELINE_EVENTS} />
+      )}
+
+      {activeTab === 'traces' && (
+        <AgentTraceViewer traces={MOCK_TRACES} />
       )}
 
       {activeTab === 'logs' && (
