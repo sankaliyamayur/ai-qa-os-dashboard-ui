@@ -3,12 +3,56 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { MetricBadge } from '../components/common/MetricBadge';
+import { TimelineViewer, type TimelineEvent } from '../components/timeline/TimelineViewer';
 
 interface LogMessage {
   time: string;
   level: 'INFO' | 'WARN' | 'ERROR';
   message: string;
 }
+
+const MOCK_TIMELINE_EVENTS: TimelineEvent[] = [
+  {
+    id: 'stage-1',
+    stageName: 'QA Analysis',
+    startedAt: '11:30:01',
+    durationMs: 9000,
+    status: 'SUCCESS',
+    cost: 0.012,
+    tokens: 4000,
+    retries: 0,
+  },
+  {
+    id: 'stage-2',
+    stageName: 'Script Generation',
+    startedAt: '11:30:10',
+    durationMs: 35000,
+    status: 'SUCCESS',
+    cost: 0.084,
+    tokens: 28000,
+    retries: 1,
+  },
+  {
+    id: 'stage-3',
+    stageName: 'Execution',
+    startedAt: '11:30:45',
+    durationMs: 45000,
+    status: 'SUCCESS',
+    cost: 0,
+    tokens: 0,
+    retries: 0,
+  },
+  {
+    id: 'stage-4',
+    stageName: 'Healing & Pass',
+    startedAt: '11:31:30',
+    durationMs: 44000,
+    status: 'SUCCESS',
+    cost: 0.03,
+    tokens: 10000,
+    retries: 0,
+  },
+];
 
 const MOCK_DETAILS = {
   id: 'exec-101',
@@ -39,7 +83,7 @@ const MOCK_DETAILS = {
 export const ExecutionDetailPage: React.FC = () => {
   const { executionId } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'logs' | 'raw'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'logs' | 'raw'>('overview');
 
   return (
     <div className="space-y-lg p-lg">
@@ -61,7 +105,7 @@ export const ExecutionDetailPage: React.FC = () => {
 
       {/* Tabs Header */}
       <div className="flex border-b border-bg-secondary space-x-md">
-        {(['overview', 'logs', 'raw'] as const).map((tab) => (
+        {(['overview', 'timeline', 'logs', 'raw'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -135,6 +179,10 @@ export const ExecutionDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {activeTab === 'timeline' && (
+        <TimelineViewer events={MOCK_TIMELINE_EVENTS} />
       )}
 
       {activeTab === 'logs' && (
