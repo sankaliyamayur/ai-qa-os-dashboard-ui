@@ -8,6 +8,7 @@ import { ExecutionsPage } from '../pages/ExecutionsPage';
 import { ExecutionDetailPage } from '../pages/ExecutionDetailPage';
 import { AnalyticsPage } from '../pages/AnalyticsPage';
 import { LiveMonitoringPage } from '../pages/LiveMonitoringPage';
+import { SettingsPage } from '../pages/SettingsPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { RoleGuard } from './RoleGuard';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -34,7 +35,7 @@ export const AppRoutes: React.FC = () => {
             path="/settings" 
             element={
               <RoleGuard allowedRoles={['ADMIN', 'QA_MANAGER']}>
-                <MockPage title="System Settings" />
+                <SettingsPage />
               </RoleGuard>
             } 
           />
