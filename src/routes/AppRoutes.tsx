@@ -6,6 +6,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { ExecutionsPage } from '../pages/ExecutionsPage';
 import { ExecutionDetailPage } from '../pages/ExecutionDetailPage';
+import { AnalyticsPage } from '../pages/AnalyticsPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { RoleGuard } from './RoleGuard';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -23,7 +24,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="/executions" element={<ExecutionsPage />} />
           <Route path="/executions/:executionId" element={<ExecutionDetailPage />} />
           <Route path="/compare" element={<MockPage title="Execution Comparison" />} />
-          <Route path="/analytics" element={<MockPage title="Analytics & Charts" />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/agent-traces" element={<MockPage title="Agent Trace Auditor" />} />
           <Route path="/live" element={<MockPage title="Live Monitoring" />} />
           
