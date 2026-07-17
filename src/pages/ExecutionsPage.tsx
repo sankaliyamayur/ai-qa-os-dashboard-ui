@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Download } from 'lucide-react';
 import { StatusBadge } from '../components/common/StatusBadge';
@@ -59,9 +59,48 @@ const MOCK_ROWS: ExecutionRow[] = [
 export const ExecutionsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [envFilter, setEnvFilter] = useState('ALL');
+  const [rows, setRows] = useState<ExecutionRow[]>(MOCK_ROWS);
   const navigate = useNavigate();
 
-  const filteredRows = MOCK_ROWS.filter((row) => {
+  useEffect(() => {
+    fetch('/api/dashboard/executions?size=50')
+      .then((res) => {
+        if (!res.ok) throw new Error('API failed');
+        return res.json();
+      })
+      .then((data) => {
+        if (data && data.content && data.content.length > 0) {
+          const apiRows = data.content.map((item: any) => {
+            const total = item.totalSteps || 0;
+            const success = item.successSteps || 0;
+            const rate = total > 0 ? Math.round((success * 100) / total) : 0;
+            let rowStatus: 'success' | 'warning' | 'error' | 'info' = 'info';
+            if (item.status) {
+              const s = item.status.toLowerCase();
+              if (s === 'success' || s === 'passed') rowStatus = 'success';
+              else if (s === 'failed' || s === 'error') rowStatus = 'error';
+              else if (s === 'running') rowStatus = 'info';
+            }
+            return {
+              id: item.executionId,
+              workflowName: item.gitBranch ? `Pipeline - ${item.gitBranch}` : 'AUTONOMOUS_QA_PIPELINE',
+              startedAt: item.startTime ? item.startTime.replace('T', ' ').substring(0, 16) : 'Just now',
+              duration: item.durationMs ? `${Math.round(item.durationMs / 1000)}s` : 'Running',
+              status: rowStatus,
+              passRate: rate,
+              environment: item.environment || 'Staging',
+              browser: item.browser || 'Chrome',
+              framework: 'Playwright',
+              triggeredBy: item.gitCommit ? `Commit: ${item.gitCommit.substring(0, 7)}` : 'API',
+            };
+          });
+          setRows(apiRows);
+        }
+      })
+      .catch((err) => console.warn('Could not fetch real executions, using mock data:', err));
+  }, []);
+
+  const filteredRows = rows.filter((row) => {
     const matchesSearch =
       row.id.toLowerCase().includes(search.toLowerCase()) ||
       row.workflowName.toLowerCase().includes(search.toLowerCase());

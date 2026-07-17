@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { StatusBadge } from '../components/common/StatusBadge';
@@ -110,6 +110,57 @@ export const ExecutionDetailPage: React.FC = () => {
   const { executionId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'traces' | 'logs' | 'raw'>('overview');
+  const [details, setDetails] = useState(MOCK_DETAILS);
+
+  useEffect(() => {
+    if (executionId && !executionId.startsWith('exec-')) {
+      fetch(`/api/dashboard/executions/${executionId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error('API failed');
+          return res.json();
+        })
+        .then((item) => {
+          const total = item.totalSteps || 0;
+          const success = item.successSteps || 0;
+          const rate = total > 0 ? Math.round((success * 100) / total) : 0;
+          let rowStatus: 'success' | 'warning' | 'error' | 'info' = 'info';
+          if (item.status) {
+            const s = item.status.toLowerCase();
+            if (s === 'success' || s === 'passed') rowStatus = 'success';
+            else if (s === 'failed' || s === 'error') rowStatus = 'error';
+            else if (s === 'running') rowStatus = 'info';
+          }
+          setDetails({
+            id: item.executionId,
+            workflowName: item.gitBranch ? `Pipeline - ${item.gitBranch}` : 'AUTONOMOUS_QA_PIPELINE',
+            startedAt: item.startTime ? item.startTime.replace('T', ' ').substring(0, 19) : 'Just now',
+            finishedAt: item.endTime ? item.endTime.replace('T', ' ').substring(0, 19) : 'Running',
+            duration: item.durationMs ? `${Math.round(item.durationMs / 1000)}s` : 'Running',
+            status: rowStatus,
+            passRate: rate,
+            environment: item.environment || 'Staging',
+            browser: item.browser || 'Chrome',
+            framework: 'Playwright',
+            triggeredBy: item.gitCommit ? `Commit: ${item.gitCommit.substring(0, 7)}` : 'API',
+            gitBranch: item.gitBranch || 'main',
+            gitCommit: item.gitCommit || 'N/A',
+            llmModel: item.llmModel || 'Gemini 1.5 Pro',
+            tokensUsed: item.tokenUsage || 0,
+            cost: item.executionCost || 0,
+            logs: [
+              { time: '17:42:08', level: 'INFO', message: 'Starting workflow: AUTONOMOUS_QA_PIPELINE' },
+              { time: '17:42:09', level: 'INFO', message: 'StepRequirementReader: Read user story US-001.md successfully.' },
+              { time: '17:42:15', level: 'INFO', message: 'StepQAAnalysis: Generated QA metrics and target locators.' },
+              { time: '17:42:25', level: 'INFO', message: 'StepTestCaseGeneration: Created 3 functional test cases.' },
+              { time: '17:42:35', level: 'INFO', message: 'StepScriptGeneration: Generated Playwright execution scripts.' },
+              { time: '17:42:45', level: 'INFO', message: 'StepExecution: Simulating Playwright run on environment Staging.' },
+              { time: '17:42:55', level: 'INFO', message: 'StepReporting: Workflow completed successfully. Statistics published.' }
+            ]
+          });
+        })
+        .catch((err) => console.warn('Could not fetch real execution details:', err));
+    }
+  }, [executionId]);
 
   return (
     <div className="space-y-lg p-lg">
@@ -124,7 +175,7 @@ export const ExecutionDetailPage: React.FC = () => {
           <span className="text-xs font-semibold text-text-muted">Execution Details</span>
           <h1 className="text-2xl font-bold text-text-main flex items-center space-x-sm">
             <span>{executionId}</span>
-            <StatusBadge type={MOCK_DETAILS.status}>{MOCK_DETAILS.status.toUpperCase()}</StatusBadge>
+            <StatusBadge type={details.status}>{details.status.toUpperCase()}</StatusBadge>
           </h1>
         </div>
       </div>
@@ -156,21 +207,21 @@ export const ExecutionDetailPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-sm text-sm">
                 <div>
                   <span className="block text-xs text-text-muted">Workflow Name</span>
-                  <span className="font-semibold">{MOCK_DETAILS.workflowName}</span>
+                  <span className="font-semibold">{details.workflowName}</span>
                 </div>
                 <div>
                   <span className="block text-xs text-text-muted">Triggered By</span>
-                  <span className="font-semibold">{MOCK_DETAILS.triggeredBy}</span>
+                  <span className="font-semibold">{details.triggeredBy}</span>
                 </div>
                 <div>
                   <span className="block text-xs text-text-muted">Git Context</span>
                   <span className="font-mono text-xs bg-bg-secondary px-xs py-[2px] rounded">
-                    {MOCK_DETAILS.gitBranch}@{MOCK_DETAILS.gitCommit}
+                    {details.gitBranch}@{details.gitCommit}
                   </span>
                 </div>
                 <div>
                   <span className="block text-xs text-text-muted">Time Frame</span>
-                  <span className="font-semibold">{MOCK_DETAILS.duration} ({MOCK_DETAILS.startedAt})</span>
+                  <span className="font-semibold">{details.duration} ({details.startedAt})</span>
                 </div>
               </div>
             </div>
@@ -179,9 +230,9 @@ export const ExecutionDetailPage: React.FC = () => {
             <div className="bg-bg-card p-md rounded-lg border border-bg-secondary shadow-flat-md space-y-sm">
               <h3 className="text-md font-bold text-text-main">Target Infrastructure</h3>
               <div className="flex space-x-sm">
-                <MetricBadge label={MOCK_DETAILS.environment} />
-                <MetricBadge label={MOCK_DETAILS.browser} />
-                <MetricBadge label={MOCK_DETAILS.framework} />
+                <MetricBadge label={details.environment} />
+                <MetricBadge label={details.browser} />
+                <MetricBadge label={details.framework} />
               </div>
             </div>
           </div>
@@ -192,15 +243,15 @@ export const ExecutionDetailPage: React.FC = () => {
             <div className="space-y-sm text-sm">
               <div className="flex justify-between items-center border-b border-bg-secondary pb-xs">
                 <span className="text-text-muted">Model Used</span>
-                <span className="font-semibold text-accent-primary">{MOCK_DETAILS.llmModel}</span>
+                <span className="font-semibold text-accent-primary">{details.llmModel}</span>
               </div>
               <div className="flex justify-between items-center border-b border-bg-secondary pb-xs">
                 <span className="text-text-muted">Total Tokens</span>
-                <span className="font-semibold">{MOCK_DETAILS.tokensUsed.toLocaleString()}</span>
+                <span className="font-semibold">{details.tokensUsed.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center pb-xs">
                 <span className="text-text-muted">Execution Cost</span>
-                <span className="font-semibold text-status-success">${MOCK_DETAILS.cost.toFixed(3)}</span>
+                <span className="font-semibold text-status-success">${details.cost.toFixed(3)}</span>
               </div>
             </div>
           </div>
@@ -218,7 +269,7 @@ export const ExecutionDetailPage: React.FC = () => {
       {activeTab === 'logs' && (
         <div className="bg-bg-card rounded-lg border border-bg-secondary shadow-flat-md p-md font-mono text-xs overflow-x-auto">
           <div className="space-y-xs">
-            {MOCK_DETAILS.logs.map((log, idx) => (
+            {details.logs.map((log, idx) => (
               <div key={idx} className="flex space-x-md py-xs border-b border-bg-secondary/40 last:border-0">
                 <span className="text-text-muted">{log.time}</span>
                 <span
@@ -242,7 +293,7 @@ export const ExecutionDetailPage: React.FC = () => {
       {activeTab === 'raw' && (
         <div className="bg-bg-card rounded-lg border border-bg-secondary shadow-flat-md p-md font-mono text-xs">
           <pre className="text-text-main overflow-x-auto">
-            {JSON.stringify(MOCK_DETAILS, null, 2)}
+            {JSON.stringify(details, null, 2)}
           </pre>
         </div>
       )}

@@ -8,6 +8,8 @@ import { RoleGuard } from './RoleGuard';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { Skeleton } from '../components/common/Skeleton';
 
+import { DashboardLayout } from '../layouts/DashboardLayout';
+
 // Lazy loading the page modules for performance optimization and bundle chunking
 const DashboardPage = lazy(() => import('../pages/DashboardPage'));
 const ExecutionsPage = lazy(() => import('../pages/ExecutionsPage'));
@@ -38,24 +40,26 @@ export const AppRoutes: React.FC = () => {
           
           {/* Protected Dashboard Shell Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/executions" element={<ExecutionsPage />} />
-            <Route path="/executions/:executionId" element={<ExecutionDetailPage />} />
-            <Route path="/compare" element={<MockPage title="Execution Comparison" />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/agent-traces" element={<MockPage title="Agent Trace Auditor" />} />
-            <Route path="/live" element={<LiveMonitoringPage />} />
-            
-            {/* Admin Restricted Settings */}
-            <Route 
-              path="/settings" 
-              element={
-                <RoleGuard allowedRoles={['ADMIN', 'QA_MANAGER']}>
-                  <SettingsPage />
-                </RoleGuard>
-              } 
-            />
+            <Route element={<DashboardLayout />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/executions" element={<ExecutionsPage />} />
+              <Route path="/executions/:executionId" element={<ExecutionDetailPage />} />
+              <Route path="/compare" element={<MockPage title="Execution Comparison" />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/agent-traces" element={<MockPage title="Agent Trace Auditor" />} />
+              <Route path="/live" element={<LiveMonitoringPage />} />
+              
+              {/* Admin Restricted Settings */}
+              <Route 
+                path="/settings" 
+                element={
+                  <RoleGuard allowedRoles={['ADMIN', 'QA_MANAGER']}>
+                    <SettingsPage />
+                  </RoleGuard>
+                } 
+              />
+            </Route>
           </Route>
           
           <Route path="*" element={<NotFoundPage />} />
