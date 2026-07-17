@@ -10,10 +10,10 @@ export interface ExecutionHistoryItem {
 }
 
 export const MOCK_HISTORY: ExecutionHistoryItem[] = [
-  // History for TC-AUTH-002
+  // History for TC-AL-003
   {
     id: 'h-101',
-    testCaseId: 'TC-AUTH-002',
+    testCaseId: 'TC-AL-003',
     executionDate: 'Today 09:14 AM',
     build: 'Bld-2026.07.17-01',
     pipeline: 'PL-GHA-993848',
@@ -23,7 +23,7 @@ export const MOCK_HISTORY: ExecutionHistoryItem[] = [
   },
   {
     id: 'h-102',
-    testCaseId: 'TC-AUTH-002',
+    testCaseId: 'TC-AL-003',
     executionDate: 'Yesterday 11:30 PM',
     build: 'Bld-2026.07.16-04',
     pipeline: 'PL-AZD-882736',
@@ -33,7 +33,7 @@ export const MOCK_HISTORY: ExecutionHistoryItem[] = [
   },
   {
     id: 'h-103',
-    testCaseId: 'TC-AUTH-002',
+    testCaseId: 'TC-AL-003',
     executionDate: '2 days ago',
     build: 'Bld-2026.07.15-02',
     pipeline: 'PL-GLI-112734',
@@ -42,10 +42,10 @@ export const MOCK_HISTORY: ExecutionHistoryItem[] = [
     duration: '12 sec'
   },
 
-  // History for TC-AUTH-001
+  // History for TC-AL-001
   {
     id: 'h-201',
-    testCaseId: 'TC-AUTH-001',
+    testCaseId: 'TC-AL-001',
     executionDate: 'Today 09:12 AM',
     build: 'Bld-2026.07.17-01',
     pipeline: 'PL-GHA-993848',
@@ -55,7 +55,7 @@ export const MOCK_HISTORY: ExecutionHistoryItem[] = [
   },
   {
     id: 'h-202',
-    testCaseId: 'TC-AUTH-001',
+    testCaseId: 'TC-AL-001',
     executionDate: 'Yesterday 11:29 PM',
     build: 'Bld-2026.07.16-04',
     pipeline: 'PL-AZD-882736',

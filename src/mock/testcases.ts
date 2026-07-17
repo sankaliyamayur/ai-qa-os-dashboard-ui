@@ -33,39 +33,63 @@ export interface TestCase {
 }
 
 export const MOCK_TEST_CASES: TestCase[] = [
-  // Authentication Module
   {
-    id: 'TC-AUTH-001',
-    name: 'Verify Admin Login with Valid Credentials',
-    description: 'Ensure that the administrator is redirected to the admin dashboard upon providing a valid username and password.',
-    moduleId: 'authentication',
-    feature: 'Admin Sign-In',
+    id: 'TC-AL-001',
+    name: 'AC-001: Verify Admin Login with Valid Credentials',
+    description: 'Given Admin is on Login page, When valid Email and Password are entered, Then Login should be successful.',
+    moduleId: 'admin-login',
+    feature: 'Admin Login Process',
     priority: 'High',
     status: 'Passed',
     browser: 'Chrome',
-    duration: '12 sec',
+    duration: '8 sec',
     build: 'Bld-2026.07.17-01',
-    lastRun: 'Today 09:12 AM',
-    tags: ['Sanity', 'Regression', 'P0'],
+    lastRun: 'Today 09:10 AM',
+    tags: ['Sanity', 'P0', 'Happy-Path'],
     device: 'Desktop - Windows 11',
     environment: 'Staging',
     commitHash: '1a0dd34',
     pipelineId: 'PL-GHA-993848',
     steps: [
-      { time: '09:12:01', action: 'Open Browser & Launch Chrome', status: 'PASS' },
-      { time: '09:12:03', action: 'Navigate to Admin Login URL', status: 'PASS' },
-      { time: '09:12:06', action: 'Enter email address: admin@360automarketplace.com', status: 'PASS' },
-      { time: '09:12:08', action: 'Enter password: Admin@123', status: 'PASS' },
-      { time: '09:12:10', action: 'Click login button', status: 'PASS' },
-      { time: '09:12:13', action: 'Verify dashboard title is visible', status: 'PASS' }
+      { time: '09:10:01', action: 'Open Chrome Browser', status: 'PASS' },
+      { time: '09:10:03', action: 'Navigate to Admin Login URL: https://marketplace-admin.appworkdemo.com/', status: 'PASS' },
+      { time: '09:10:05', action: 'Enter Email: admin@360automarketplace.com', status: 'PASS' },
+      { time: '09:10:06', action: 'Enter Password: Admin@123', status: 'PASS' },
+      { time: '09:10:07', action: 'Click Login button', status: 'PASS' },
+      { time: '09:10:09', action: 'Verify redirect to Dashboard', status: 'PASS' }
     ]
   },
   {
-    id: 'TC-AUTH-002',
-    name: 'Verify Login Failure with Invalid Password',
-    description: 'Ensure that correct validation message is shown and login fails when password is case-sensitive wrong.',
-    moduleId: 'authentication',
-    feature: 'Admin Sign-In',
+    id: 'TC-AL-002',
+    name: 'AC-002: Verify Login Failure with Invalid Email',
+    description: 'Given Admin enters invalid Email, When Login button is clicked, Then login should fail.',
+    moduleId: 'admin-login',
+    feature: 'Login Validation',
+    priority: 'High',
+    status: 'Passed',
+    browser: 'Chrome',
+    duration: '7 sec',
+    build: 'Bld-2026.07.17-01',
+    lastRun: 'Today 09:11 AM',
+    tags: ['Security', 'P0'],
+    device: 'Desktop - Windows 11',
+    environment: 'Staging',
+    commitHash: '1a0dd34',
+    pipelineId: 'PL-GHA-993848',
+    steps: [
+      { time: '09:11:01', action: 'Navigate to Admin Login URL', status: 'PASS' },
+      { time: '09:11:03', action: 'Enter invalid Email: invalid-admin@360automarketplace.com', status: 'PASS' },
+      { time: '09:11:04', action: 'Enter Password: Admin@123', status: 'PASS' },
+      { time: '09:11:05', action: 'Click Login button', status: 'PASS' },
+      { time: '09:11:08', action: 'Verify validation error "Invalid email or password" is shown', status: 'PASS' }
+    ]
+  },
+  {
+    id: 'TC-AL-003',
+    name: 'AC-003: Verify Login Failure with Invalid Password',
+    description: 'Given Admin enters invalid Password, When Login button is clicked, Then login should fail.',
+    moduleId: 'admin-login',
+    feature: 'Login Validation',
     priority: 'High',
     status: 'Failed',
     browser: 'Firefox',
@@ -77,113 +101,122 @@ export const MOCK_TEST_CASES: TestCase[] = [
     environment: 'Staging',
     commitHash: '1a0dd34',
     pipelineId: 'PL-GHA-993848',
-    failureReason: 'Dashboard verification failed',
-    errorMessage: 'TimeoutError: locator.click() waiting for element "#submit" failed - 30 seconds exceeded.',
-    stackTrace: 'TimeoutError: locator.click(): Timeout 30000ms exceeded.\n  at d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\scripts\\login.spec.ts:18:22\n  at LoginPage.submit (d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\pages\\LoginPage.ts:45:34)',
+    failureReason: 'Validation banner did not appear',
+    errorMessage: 'TimeoutError: locator.waitFor() timeout 30000ms exceeded waiting for error message element ".alert-danger".',
+    stackTrace: 'TimeoutError: locator.waitFor(): Timeout 30000ms exceeded.\n  at d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\scripts\\login.spec.ts:18:22\n  at LoginPage.submit (d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\pages\\LoginPage.ts:45:34)',
     screenshot: 'https://images.unsplash.com/photo-1590408595525-ac1f3049f55e?w=800&auto=format&fit=crop',
     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     htmlReport: '/reports/playwright-report.html',
     traceFile: '/artifacts/playwright-trace.zip',
-    networkLog: 'Host: localhost:8082\nMethod: POST /api/v1/auth/login\nStatus: 401 Unauthorized\nPayload: {"email": "admin@360automarketplace.com", "password": "wrong_password"}',
+    networkLog: 'Host: localhost:8082\nMethod: POST /api/v1/auth/login\nStatus: 401 Unauthorized',
     consoleLog: '[INFO] Launching Firefox...\n[WARN] Failed to load favicon\n[ERROR] Authentication API failed with HTTP 401.',
     steps: [
-      { time: '09:14:01', action: 'Open Browser & Launch Firefox', status: 'PASS' },
+      { time: '09:14:01', action: 'Open Firefox Browser', status: 'PASS' },
       { time: '09:14:03', action: 'Navigate to Admin Login URL', status: 'PASS' },
-      { time: '09:14:06', action: 'Enter email address: admin@360automarketplace.com', status: 'PASS' },
-      { time: '09:14:08', action: 'Enter password: WrongPassword123', status: 'PASS' },
-      { time: '09:14:10', action: 'Click login button', status: 'PASS' },
-      { time: '09:14:40', action: 'Verify dashboard title is visible', status: 'FAILED', details: 'Dashboard title not found.' }
+      { time: '09:14:05', action: 'Enter Email: admin@360automarketplace.com', status: 'PASS' },
+      { time: '09:14:06', action: 'Enter invalid Password: WrongPassword123', status: 'PASS' },
+      { time: '09:14:08', action: 'Click Login button', status: 'PASS' },
+      { time: '09:14:38', action: 'Verify validation error alert is visible', status: 'FAILED', details: 'Timeout waiting for validation alert element.' }
     ]
   },
   {
-    id: 'TC-AUTH-003',
-    name: 'Forgot Password Verification Email Send',
-    description: 'Ensure forgot password request issues a secure recovery code via email.',
-    moduleId: 'authentication',
-    feature: 'Password Recovery',
+    id: 'TC-AL-004',
+    name: 'AC-004: Verify Login Failure with both fields Invalid',
+    description: 'Given both Email and Password are invalid, When Login button is clicked, Then login should fail.',
+    moduleId: 'admin-login',
+    feature: 'Login Validation',
+    priority: 'High',
+    status: 'Passed',
+    browser: 'Chrome',
+    duration: '5 sec',
+    build: 'Bld-2026.07.17-01',
+    lastRun: 'Today 09:12 AM',
+    tags: ['Security', 'P1'],
+    steps: [
+      { time: '09:12:01', action: 'Navigate to Admin Login URL', status: 'PASS' },
+      { time: '09:12:02', action: 'Enter Email: invalid-email@test.com', status: 'PASS' },
+      { time: '09:12:03', action: 'Enter Password: WrongPassword123', status: 'PASS' },
+      { time: '09:12:04', action: 'Click Login button', status: 'PASS' },
+      { time: '09:12:06', action: 'Verify login fails with error message', status: 'PASS' }
+    ]
+  },
+  {
+    id: 'TC-AL-005',
+    name: 'AC-005: Verify Validation when Email is Blank',
+    description: 'Given Email field is blank, When Login button is clicked, Then validation message should appear.',
+    moduleId: 'admin-login',
+    feature: 'Required Validation',
+    priority: 'Medium',
+    status: 'Passed',
+    browser: 'Edge',
+    duration: '4 sec',
+    build: 'Bld-2026.07.17-01',
+    lastRun: 'Today 09:13 AM',
+    tags: ['UX', 'Validation'],
+    steps: [
+      { time: '09:13:01', action: 'Navigate to Admin Login URL', status: 'PASS' },
+      { time: '09:13:02', action: 'Leave Email field blank', status: 'PASS' },
+      { time: '09:13:03', action: 'Enter Password: Admin@123', status: 'PASS' },
+      { time: '09:13:04', action: 'Click Login button', status: 'PASS' },
+      { time: '09:13:05', action: 'Verify HTML5 required validation or placeholder error', status: 'PASS' }
+    ]
+  },
+  {
+    id: 'TC-AL-006',
+    name: 'AC-006: Verify Validation when Password is Blank',
+    description: 'Given Password field is blank, When Login button is clicked, Then validation message should appear.',
+    moduleId: 'admin-login',
+    feature: 'Required Validation',
+    priority: 'Medium',
+    status: 'Passed',
+    browser: 'Chrome',
+    duration: '4 sec',
+    build: 'Bld-2026.07.17-01',
+    lastRun: 'Today 09:13 AM',
+    tags: ['UX', 'Validation'],
+    steps: [
+      { time: '09:13:20', action: 'Navigate to Admin Login URL', status: 'PASS' },
+      { time: '09:13:21', action: 'Enter Email: admin@360automarketplace.com', status: 'PASS' },
+      { time: '09:13:22', action: 'Leave Password field blank', status: 'PASS' },
+      { time: '09:13:23', action: 'Click Login button', status: 'PASS' },
+      { time: '09:13:24', action: 'Verify required password message matches spec', status: 'PASS' }
+    ]
+  },
+  {
+    id: 'TC-AL-007',
+    name: 'AC-007: Verify Validation when both fields are Blank',
+    description: 'Given both fields are blank, When Login button is clicked, Then required field validation should appear.',
+    moduleId: 'admin-login',
+    feature: 'Required Validation',
+    priority: 'Medium',
+    status: 'Passed',
+    browser: 'Firefox',
+    duration: '3 sec',
+    build: 'Bld-2026.07.17-01',
+    lastRun: 'Today 09:13 AM',
+    tags: ['UX', 'Validation'],
+    steps: [
+      { time: '09:13:40', action: 'Navigate to Admin Login URL', status: 'PASS' },
+      { time: '09:13:41', action: 'Leave both fields blank', status: 'PASS' },
+      { time: '09:13:42', action: 'Click Login button', status: 'PASS' },
+      { time: '09:13:43', action: 'Verify UI blocks submission and indicates required inputs', status: 'PASS' }
+    ]
+  },
+  {
+    id: 'TC-AL-008',
+    name: 'AC-008: Verify Forgot Password navigation link',
+    description: 'Given Admin clicks Forgot Password, Then Redirect user to Forgot Password page.',
+    moduleId: 'admin-login',
+    feature: 'Password Recovery Navigation',
     priority: 'Medium',
     status: 'Skipped',
     browser: 'Safari',
     duration: '0 sec',
     build: 'Bld-2026.07.17-01',
     lastRun: 'Today 09:15 AM',
-    tags: ['Functional'],
+    tags: ['UX', 'Happy-Path'],
     steps: [
-      { time: '09:15:00', action: 'Initialize forgot password test', status: 'SKIPPED' }
-    ]
-  },
-
-  // User Management
-  {
-    id: 'TC-USER-001',
-    name: 'Create New QA Engineer Role Account',
-    description: 'Ensure admin can successfully invite and delegate role roles to new users.',
-    moduleId: 'user-management',
-    feature: 'Role Delegation',
-    priority: 'High',
-    status: 'Passed',
-    browser: 'Chrome',
-    duration: '15 sec',
-    build: 'Bld-2026.07.17-01',
-    lastRun: 'Today 10:18 AM',
-    tags: ['Functional', 'RBAC'],
-    steps: [
-      { time: '10:18:01', action: 'Navigate to user management section', status: 'PASS' },
-      { time: '10:18:05', action: 'Click "New User"', status: 'PASS' },
-      { time: '10:18:10', action: 'Fill user form with QA Engineer role details', status: 'PASS' },
-      { time: '10:18:16', action: 'Save user and verify user exists in list', status: 'PASS' }
-    ]
-  },
-  {
-    id: 'TC-USER-002',
-    name: 'Delete User Account Assertion',
-    description: 'Ensure deletion locks user logins instantly across active sessions.',
-    moduleId: 'user-management',
-    feature: 'User Deletion',
-    priority: 'High',
-    status: 'Failed',
-    browser: 'Edge',
-    duration: '42 sec',
-    build: 'Bld-2026.07.17-01',
-    lastRun: 'Today 10:20 AM',
-    tags: ['Regression', 'P1'],
-    failureReason: 'Delete dialog did not close',
-    errorMessage: 'TimeoutError: locator.waitFor() timeout 30000ms exceeded waiting for dialog to close.',
-    stackTrace: 'TimeoutError: locator.waitFor() timeout 30000ms exceeded.\n  at d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\scripts\\user.spec.ts:32:15',
-    screenshot: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    steps: [
-      { time: '10:19:00', action: 'Navigate to user grid list', status: 'PASS' },
-      { time: '10:19:05', action: 'Click delete icon on row #3', status: 'PASS' },
-      { time: '10:19:10', action: 'Click confirm modal button', status: 'PASS' },
-      { time: '10:19:42', action: 'Verify user row is deleted', status: 'FAILED', details: 'Row still visible in list.' }
-    ]
-  },
-
-  // Payments Module
-  {
-    id: 'TC-PAY-001',
-    name: 'Verify Stripe Card Payment Checkout Flow',
-    description: 'Complete transaction using Stripe developer test cards.',
-    moduleId: 'payments',
-    feature: 'Credit Card Payment',
-    priority: 'High',
-    status: 'Failed',
-    browser: 'Chrome',
-    duration: '45 sec',
-    build: 'Bld-2026.07.17-01',
-    lastRun: 'Today 11:05 AM',
-    tags: ['Checkout', 'Stripe'],
-    failureReason: 'Payment gateway timeout',
-    errorMessage: 'Stripe API returned 504 Gateway Timeout during charge authorization.',
-    stackTrace: 'NetworkError: Stripe API charge authorization failed due to Gateway Timeout.\n  at d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\payment.spec.ts:88:14',
-    screenshot: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800&auto=format&fit=crop',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    steps: [
-      { time: '11:04:20', action: 'Navigate to payment checkout page', status: 'PASS' },
-      { time: '11:04:25', action: 'Input Stripe test visa credentials', status: 'PASS' },
-      { time: '11:04:30', action: 'Click Pay Now button', status: 'PASS' },
-      { time: '11:05:05', action: 'Verify receipt popup message', status: 'FAILED', details: 'Timeout waiting for payment provider response.' }
+      { time: '09:15:00', action: 'Initialize navigation test suite', status: 'SKIPPED' }
     ]
   }
 ];
