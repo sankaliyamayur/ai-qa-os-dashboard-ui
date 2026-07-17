@@ -1,15 +1,15 @@
 import React from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert, Layers } from 'lucide-react';
 
 export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+    { path: '/modules', label: 'Modules', icon: <Layers className="w-4 h-4" /> },
     { path: '/executions', label: 'Executions', icon: <ListTodo className="w-4 h-4" /> },
     { path: '/live', label: 'Live Monitoring', icon: <Activity className="w-4 h-4" /> },
   ];

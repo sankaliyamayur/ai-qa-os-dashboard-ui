@@ -86,7 +86,7 @@ const MOCK_DETAILS = {
   startedAt: '2026-07-15 11:30:00',
   finishedAt: '2026-07-15 11:32:15',
   duration: '2m 15s',
-  status: 'success' as const,
+  status: 'success' as 'success' | 'warning' | 'error' | 'info',
   passRate: 100,
   environment: 'Staging',
   browser: 'Chrome',
