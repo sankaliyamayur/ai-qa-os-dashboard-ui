@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Download, ShieldAlert, Radio, Terminal } from 'lucide-react';
+import { FileText, Download, ShieldAlert, Radio, Terminal, PackageOpen } from 'lucide-react';
 
 interface AttachmentViewerProps {
   htmlReport?: string;
@@ -41,39 +41,54 @@ export const AttachmentViewer: React.FC<AttachmentViewerProps> = ({
     }
   ];
 
+  const available = attachments.filter(a => !!a.url);
+
+  if (available.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-lg bg-bg-secondary rounded-lg border border-dashed border-bg-secondary text-text-muted space-y-xs">
+        <PackageOpen className="w-10 h-10 mb-sm" />
+        <p className="text-sm font-semibold">No attachments available.</p>
+        <p className="text-xs text-center max-w-xs">
+          Playwright artifacts (HTML report, trace, network log) are only generated<br />
+          when a test case is executed and fails.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-      {attachments.map((att, idx) => {
-        if (!att.url) return null;
-        return (
-          <div key={idx} className="flex justify-between items-center p-md bg-bg-card border border-bg-secondary rounded-lg hover:border-accent-primary/30 transition-all shadow-flat-sm">
-            <div className="flex items-center space-x-md">
-              <div className="p-sm bg-bg-secondary rounded-md">
-                {att.icon}
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-text-main">{att.name}</h4>
-                <p className="text-xs text-text-muted">{att.description}</p>
-              </div>
+      {available.map((att, idx) => (
+        <div
+          key={idx}
+          className="flex justify-between items-center p-md bg-bg-card border border-bg-secondary rounded-lg hover:border-accent-primary/30 transition-all shadow-flat-sm"
+        >
+          <div className="flex items-center space-x-md">
+            <div className="p-sm bg-bg-secondary rounded-md">
+              {att.icon}
             </div>
-            {att.url.startsWith('#') ? (
-              <span className="text-xs text-accent-primary font-semibold uppercase bg-accent-primary/10 px-sm py-[2px] rounded">
-                Embedded
-              </span>
-            ) : (
-              <a
-                href={att.url}
-                target="_blank"
-                rel="noreferrer"
-                className="p-sm bg-bg-secondary hover:bg-accent-primary hover:text-white rounded-md text-text-muted transition-colors"
-                title="Download Attachment"
-              >
-                <Download className="w-4 h-4" />
-              </a>
-            )}
+            <div>
+              <h4 className="text-sm font-semibold text-text-main">{att.name}</h4>
+              <p className="text-xs text-text-muted">{att.description}</p>
+            </div>
           </div>
-        );
-      })}
+          {att.url!.startsWith('#') ? (
+            <span className="text-xs text-accent-primary font-semibold uppercase bg-accent-primary/10 px-sm py-[2px] rounded">
+              Embedded
+            </span>
+          ) : (
+            <a
+              href={att.url}
+              target="_blank"
+              rel="noreferrer"
+              className="p-sm bg-bg-secondary hover:bg-accent-primary hover:text-white rounded-md text-text-muted transition-colors"
+              title="Download Attachment"
+            >
+              <Download className="w-4 h-4" />
+            </a>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

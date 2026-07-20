@@ -8,12 +8,17 @@ interface ScreenshotViewerProps {
 
 export const ScreenshotViewer: React.FC<ScreenshotViewerProps> = ({ screenshotUrl, testName }) => {
   const [scale, setScale] = useState(1);
+  const [imgError, setImgError] = useState(false);
 
   if (!screenshotUrl) {
     return (
-      <div className="flex flex-col items-center justify-center p-lg bg-bg-secondary rounded-lg border border-dashed border-bg-secondary text-text-muted">
+      <div className="flex flex-col items-center justify-center p-lg bg-bg-secondary rounded-lg border border-dashed border-bg-secondary text-text-muted space-y-xs">
         <ImageIcon className="w-10 h-10 mb-sm" />
-        <p className="text-sm">No screenshot captured for this test case.</p>
+        <p className="text-sm font-semibold">No screenshot available.</p>
+        <p className="text-xs text-center max-w-xs">
+          Screenshots are captured only when a test fails<br />
+          (<code className="font-mono bg-bg-primary px-xs rounded">screenshot: 'only-on-failure'</code>).
+        </p>
       </div>
     );
   }
@@ -58,12 +63,23 @@ export const ScreenshotViewer: React.FC<ScreenshotViewerProps> = ({ screenshotUr
         </div>
       </div>
       <div className="p-md flex justify-center bg-black/10 items-center overflow-auto min-h-[300px] max-h-[500px]">
-        <img
-          src={screenshotUrl}
-          alt={`Failure screenshot for ${testName}`}
-          style={{ transform: `scale(${scale})` }}
-          className="max-w-full h-auto rounded shadow-lg transition-transform duration-200 origin-center"
-        />
+        {imgError ? (
+          <div className="flex flex-col items-center text-text-muted space-y-xs">
+            <ImageIcon className="w-8 h-8" />
+            <p className="text-xs">Screenshot file could not be loaded.</p>
+            <a href={screenshotUrl} target="_blank" rel="noreferrer" className="text-xs text-accent-primary underline">
+              Open raw file
+            </a>
+          </div>
+        ) : (
+          <img
+            src={screenshotUrl}
+            alt={`Failure screenshot for ${testName}`}
+            style={{ transform: `scale(${scale})` }}
+            className="max-w-full h-auto rounded shadow-lg transition-transform duration-200 origin-center"
+            onError={() => setImgError(true)}
+          />
+        )}
       </div>
     </div>
   );

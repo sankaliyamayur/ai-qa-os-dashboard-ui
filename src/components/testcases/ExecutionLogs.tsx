@@ -16,7 +16,11 @@ export const ExecutionLogs: React.FC<ExecutionLogsProps> = ({ consoleLog, stackT
           <span>Stdout Console Output</span>
         </h3>
         <pre className="flex-1 bg-black/10 border border-bg-secondary rounded p-md font-mono text-[10px] text-text-main overflow-auto max-h-[300px] leading-relaxed">
-          {consoleLog || '[INFO] Initializing automation engine...\n[INFO] Sandbox loaded successfully.\n[INFO] Playwright run completed with exit code 0.'}
+          {consoleLog || (
+            <span className="text-text-muted italic">
+              No console output available.{`\n`}Console logs are captured from Playwright stdout/stderr during execution.
+            </span>
+          )}
         </pre>
       </div>
 
@@ -27,7 +31,11 @@ export const ExecutionLogs: React.FC<ExecutionLogsProps> = ({ consoleLog, stackT
           <span>Exception Stack Trace</span>
         </h3>
         <pre className="flex-1 bg-black/10 border border-bg-secondary rounded p-md font-mono text-[10px] text-status-error overflow-auto max-h-[300px] leading-relaxed">
-          {stackTrace || '[INFO] No execution exceptions occurred during test flow.'}
+          {stackTrace || (
+            <span className="text-text-muted italic" style={{ color: 'inherit' }}>
+              No stack trace available.{`\n`}Stack traces are captured only when a test case throws an exception.
+            </span>
+          )}
         </pre>
       </div>
     </div>

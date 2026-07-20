@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Video, Download } from 'lucide-react';
 
 interface VideoPlayerProps {
@@ -7,11 +7,17 @@ interface VideoPlayerProps {
 }
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, testName }) => {
+  const [videoError, setVideoError] = useState(false);
+
   if (!videoUrl) {
     return (
-      <div className="flex flex-col items-center justify-center p-lg bg-bg-secondary rounded-lg border border-dashed border-bg-secondary text-text-muted">
+      <div className="flex flex-col items-center justify-center p-lg bg-bg-secondary rounded-lg border border-dashed border-bg-secondary text-text-muted space-y-xs">
         <Video className="w-10 h-10 mb-sm" />
-        <p className="text-sm">No video recording saved for this execution.</p>
+        <p className="text-sm font-semibold">No execution video available.</p>
+        <p className="text-xs text-center max-w-xs">
+          Videos are recorded during Playwright execution and retained only on failure<br />
+          (<code className="font-mono bg-bg-primary px-xs rounded">video: 'retain-on-failure'</code>).
+        </p>
       </div>
     );
   }
@@ -33,13 +39,24 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, testName }) 
         </a>
       </div>
       <div className="bg-black p-xs flex justify-center items-center">
-        <video
-          controls
-          className="w-full max-h-[450px] rounded"
-          src={videoUrl}
-        >
-          Your browser does not support the video tag.
-        </video>
+        {videoError ? (
+          <div className="flex flex-col items-center text-text-muted space-y-xs py-md">
+            <Video className="w-8 h-8" />
+            <p className="text-xs">Video file could not be loaded.</p>
+            <a href={videoUrl} target="_blank" rel="noreferrer" className="text-xs text-accent-primary underline">
+              Download video file
+            </a>
+          </div>
+        ) : (
+          <video
+            controls
+            className="w-full max-h-[450px] rounded"
+            src={videoUrl}
+            onError={() => setVideoError(true)}
+          >
+            Your browser does not support the video tag.
+          </video>
+        )}
       </div>
     </div>
   );

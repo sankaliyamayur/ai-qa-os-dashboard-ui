@@ -1,3 +1,5 @@
+
+
 export interface TestCase {
   id: string;
   name: string;
@@ -104,12 +106,10 @@ export const MOCK_TEST_CASES: TestCase[] = [
     failureReason: 'Validation banner did not appear',
     errorMessage: 'TimeoutError: locator.waitFor() timeout 30000ms exceeded waiting for error message element ".alert-danger".',
     stackTrace: 'TimeoutError: locator.waitFor(): Timeout 30000ms exceeded.\n  at d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\scripts\\login.spec.ts:18:22\n  at LoginPage.submit (d:\\QA AI Automation\\AI-QA-OS Architecture\\ai-qa-os-execution\\src\\main\\resources\\pages\\LoginPage.ts:45:34)',
-    screenshot: 'https://images.unsplash.com/photo-1590408595525-ac1f3049f55e?w=800&auto=format&fit=crop',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    htmlReport: '/reports/playwright-report.html',
-    traceFile: '/artifacts/playwright-trace.zip',
-    networkLog: 'Host: localhost:8082\nMethod: POST /api/v1/auth/login\nStatus: 401 Unauthorized',
-    consoleLog: '[INFO] Launching Firefox...\n[WARN] Failed to load favicon\n[ERROR] Authentication API failed with HTTP 401.',
+    // screenshot, videoUrl, htmlReport, traceFile, networkLog, consoleLog
+    // are NOT hardcoded here. They are fetched dynamically from:
+    // GET /api/dashboard/artifacts/TC-AL-003
+    // via the useArtifacts() hook in TestCaseDetailPage.
     steps: [
       { time: '09:14:01', action: 'Open Firefox Browser', status: 'PASS' },
       { time: '09:14:03', action: 'Navigate to Admin Login URL', status: 'PASS' },

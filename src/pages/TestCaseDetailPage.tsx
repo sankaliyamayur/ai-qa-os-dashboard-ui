@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useModules } from '../contexts/ModuleContext';
+import { useArtifacts } from '../hooks/useArtifacts';
 import { TestCaseCard } from '../components/testcases/TestCaseCard';
 import { FailureReason } from '../components/testcases/FailureReason';
 import { ExecutionTimeline } from '../components/testcases/ExecutionTimeline';
@@ -8,7 +9,7 @@ import { ExecutionMedia } from '../components/testcases/ExecutionMedia';
 import { ExecutionLogs } from '../components/testcases/ExecutionLogs';
 import { ExecutionHistory } from '../components/testcases/ExecutionHistory';
 import { AttachmentViewer } from '../components/media/AttachmentViewer';
-import { ArrowLeft, Clock, Video, Terminal, Calendar, FileText } from 'lucide-react';
+import { ArrowLeft, Clock, Video, Terminal, Calendar, FileText, Loader2 } from 'lucide-react';
 
 export const TestCaseDetailPage: React.FC = () => {
   const { testId } = useParams();
@@ -18,6 +19,10 @@ export const TestCaseDetailPage: React.FC = () => {
 
   const tc = testId ? getTestCaseById(testId) : undefined;
   const historyItems = testId ? getHistoryForTestCase(testId) : [];
+
+  // ── Fetch real Playwright artifacts from the backend API ───────────────────
+  // Returns null (not an error) if the test passed or no artifacts exist yet.
+  const { artifacts, loading: artifactsLoading } = useArtifacts(tc?.id);
 
   if (!tc) {
     return (
@@ -63,11 +68,11 @@ export const TestCaseDetailPage: React.FC = () => {
       {/* Tabs list */}
       <div className="flex border-b border-bg-secondary space-x-md overflow-x-auto">
         {[
-          { id: 'timeline', label: 'Timeline', icon: <Clock className="w-4 h-4" /> },
-          { id: 'media', label: 'Media Playback', icon: <Video className="w-4 h-4" /> },
-          { id: 'logs', label: 'Terminal Logs', icon: <Terminal className="w-4 h-4" /> },
-          { id: 'history', label: 'History', icon: <Calendar className="w-4 h-4" /> },
-          { id: 'attachments', label: 'Attachments', icon: <FileText className="w-4 h-4" /> }
+          { id: 'timeline',    label: 'Timeline',      icon: <Clock className="w-4 h-4" /> },
+          { id: 'media',       label: 'Media Playback', icon: <Video className="w-4 h-4" /> },
+          { id: 'logs',        label: 'Terminal Logs',  icon: <Terminal className="w-4 h-4" /> },
+          { id: 'history',     label: 'History',        icon: <Calendar className="w-4 h-4" /> },
+          { id: 'attachments', label: 'Attachments',    icon: <FileText className="w-4 h-4" /> }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -84,6 +89,14 @@ export const TestCaseDetailPage: React.FC = () => {
         ))}
       </div>
 
+      {/* Artifact loading indicator */}
+      {artifactsLoading && (
+        <div className="flex items-center space-x-sm text-xs text-text-muted animate-pulse">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          <span>Loading Playwright artifacts…</span>
+        </div>
+      )}
+
       {/* Tab Panels */}
       <div className="space-y-md">
         {activeTab === 'timeline' && (
@@ -92,29 +105,32 @@ export const TestCaseDetailPage: React.FC = () => {
 
         {activeTab === 'media' && (
           <ExecutionMedia
-            screenshotUrl={tc.screenshot}
-            videoUrl={tc.videoUrl}
+            screenshotUrl={artifacts?.screenshotUrl}
+            videoUrl={artifacts?.videoUrl}
             testName={tc.name}
           />
         )}
 
         {activeTab === 'logs' && (
           <ExecutionLogs
-            consoleLog={tc.consoleLog}
-            stackTrace={tc.stackTrace}
+            consoleLog={artifacts?.consoleLog ?? tc.consoleLog}
+            stackTrace={artifacts?.stackTrace ?? tc.stackTrace}
           />
         )}
 
         {activeTab === 'history' && (
-          <ExecutionHistory historyItems={historyItems} />
+          <ExecutionHistory
+            historyItems={historyItems}
+            artifactHistory={artifacts?.history}
+          />
         )}
 
         {activeTab === 'attachments' && (
           <AttachmentViewer
-            htmlReport={tc.htmlReport}
-            traceFile={tc.traceFile}
-            networkLog={tc.networkLog}
-            consoleLog={tc.consoleLog}
+            htmlReport={artifacts?.htmlReportUrl ?? tc.htmlReport}
+            traceFile={artifacts?.traceUrl ?? tc.traceFile}
+            networkLog={artifacts?.networkLog ?? tc.networkLog}
+            consoleLog={artifacts?.consoleLog ?? tc.consoleLog}
           />
         )}
       </div>
