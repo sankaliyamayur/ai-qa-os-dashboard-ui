@@ -13,6 +13,17 @@ interface ExecutionTimelineProps {
 }
 
 export const ExecutionTimeline: React.FC<ExecutionTimelineProps> = ({ steps }) => {
+  if (!steps || steps.length === 0) {
+    return (
+      <div className="bg-bg-card border border-bg-secondary rounded-lg p-lg shadow-flat-md space-y-md text-center">
+        <h3 className="text-md font-bold text-text-main border-b border-bg-secondary pb-xs text-left">
+          Execution Step Timeline
+        </h3>
+        <p className="text-sm text-text-muted py-xl">No timeline steps available for this test case.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-bg-card border border-bg-secondary rounded-lg p-lg shadow-flat-md space-y-md">
       <h3 className="text-md font-bold text-text-main border-b border-bg-secondary pb-xs">

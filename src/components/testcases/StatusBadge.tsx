@@ -27,7 +27,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${getStyles()}`}>
-      {status.toUpperCase()}
+      {status ? status.toUpperCase() : 'UNKNOWN'}
     </span>
   );
 };
