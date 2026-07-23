@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert, Layers } from 'lucide-react';
+import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert, Layers, ClipboardCheck } from 'lucide-react';
 
 export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -12,6 +12,7 @@ export const DashboardLayout: React.FC = () => {
     { path: '/modules', label: 'Modules', icon: <Layers className="w-4 h-4" /> },
     { path: '/executions', label: 'Executions', icon: <ListTodo className="w-4 h-4" /> },
     { path: '/live', label: 'Live Monitoring', icon: <Activity className="w-4 h-4" /> },
+    { path: '/reviews', label: 'Human Review', icon: <ClipboardCheck className="w-4 h-4" /> },
   ];
 
   // Allow ADMIN and QA_MANAGER to see settings

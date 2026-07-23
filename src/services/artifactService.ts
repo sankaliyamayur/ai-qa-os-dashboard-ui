@@ -92,19 +92,3 @@ export async function fetchArtifacts(testCaseId: string): Promise<ArtifactDTO | 
   }
 }
 
-/**
- * Fetches full execution history for a test case.
- *
- * @param testCaseId - The test case identifier (e.g. "TC-AL-003")
- * @returns Array of run entries ordered oldest → newest, or empty array if none
- */
-export async function fetchArtifactHistory(testCaseId: string): Promise<ArtifactRunEntry[]> {
-  try {
-    const response = await apiClient.get<ArtifactRunEntry[]>(`/dashboard/artifacts/${encodeURIComponent(testCaseId)}/history`);
-    return response.data;
-  } catch (error) {
-    console.warn(`[artifactService] Could not fetch artifact history for ${testCaseId}:`, error);
-    return [];
-  }
-}
-

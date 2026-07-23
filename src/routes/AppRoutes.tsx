@@ -20,6 +20,7 @@ const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 const ModulesPage = lazy(() => import('../pages/ModulesPage'));
 const ModuleDetailPage = lazy(() => import('../pages/ModuleDetailPage'));
 const TestCaseDetailPage = lazy(() => import('../pages/TestCaseDetailPage'));
+const HumanReviewPage = lazy(() => import('../pages/HumanReviewPage')); // AI-2
 
 const PageFallback: React.FC = () => (
   <div className="p-lg space-y-md">
@@ -52,6 +53,7 @@ export const AppRoutes: React.FC = () => {
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/agent-traces" element={<MockPage title="Agent Trace Auditor" />} />
               <Route path="/live" element={<LiveMonitoringPage />} />
+              <Route path="/reviews" element={<HumanReviewPage />} />{/* AI-2 */}
               <Route path="/modules" element={<ModulesPage />} />
               <Route path="/modules/:moduleId" element={<ModuleDetailPage />} />
               <Route path="/testcases/:testId" element={<TestCaseDetailPage />} />
