@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TestCase } from '../../mock/testcases';
+import type { TestCase } from '@/mock/testcases';
 import { BrowserBadge } from './BrowserBadge';
 import { StatusBadge } from './StatusBadge';
 import { Compass, Cpu, GitCommit, Server, ShieldCheck, Activity } from 'lucide-react';

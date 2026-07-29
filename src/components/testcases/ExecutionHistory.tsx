@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ExecutionHistoryItem } from '../../mock/history';
+import type { ExecutionHistoryItem } from '@/mock/history';
 import type { ArtifactRunEntry } from '../../services/artifactService';
 import { BrowserBadge } from './BrowserBadge';
 import { StatusBadge } from './StatusBadge';

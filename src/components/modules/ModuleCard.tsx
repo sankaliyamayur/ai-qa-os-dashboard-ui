@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Module } from '../../mock/modules';
+import type { Module } from '@/mock/modules';
 import { CheckCircle2, XCircle, AlertCircle, PlayCircle, Calendar } from 'lucide-react';
 
 interface ModuleCardProps {

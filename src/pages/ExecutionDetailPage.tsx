@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { MetricBadge } from '../components/common/MetricBadge';
 import { TimelineViewer, type TimelineEvent } from '../components/timeline/TimelineViewer';
 import { AgentTraceViewer, type AgentTraceStep } from '../components/traces/AgentTraceViewer';
+import { useQuery } from '../hooks/useQuery';
+import { fetchExecutionDetail } from '../services/executionService';
 
 interface LogMessage {
   time: string;
@@ -110,57 +112,22 @@ export const ExecutionDetailPage: React.FC = () => {
   const { executionId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'traces' | 'logs' | 'raw'>('overview');
-  const [details, setDetails] = useState(MOCK_DETAILS);
 
-  useEffect(() => {
-    if (executionId && !executionId.startsWith('exec-')) {
-      fetch(`/api/dashboard/executions/${executionId}`)
-        .then((res) => {
-          if (!res.ok) throw new Error('API failed');
-          return res.json();
-        })
-        .then((item) => {
-          const total = item.totalSteps || 0;
-          const success = item.successSteps || 0;
-          const rate = total > 0 ? Math.round((success * 100) / total) : 0;
-          let rowStatus: 'success' | 'warning' | 'error' | 'info' = 'info';
-          if (item.status) {
-            const s = item.status.toLowerCase();
-            if (s === 'success' || s === 'passed') rowStatus = 'success';
-            else if (s === 'failed' || s === 'error') rowStatus = 'error';
-            else if (s === 'running') rowStatus = 'info';
-          }
-          setDetails({
-            id: item.executionId,
-            workflowName: item.gitBranch ? `Pipeline - ${item.gitBranch}` : 'AUTONOMOUS_QA_PIPELINE',
-            startedAt: item.startTime ? item.startTime.replace('T', ' ').substring(0, 19) : 'Just now',
-            finishedAt: item.endTime ? item.endTime.replace('T', ' ').substring(0, 19) : 'Running',
-            duration: item.durationMs ? `${Math.round(item.durationMs / 1000)}s` : 'Running',
-            status: rowStatus,
-            passRate: rate,
-            environment: item.environment || 'Staging',
-            browser: item.browser || 'Chrome',
-            framework: 'Playwright',
-            triggeredBy: item.gitCommit ? `Commit: ${item.gitCommit.substring(0, 7)}` : 'API',
-            gitBranch: item.gitBranch || 'main',
-            gitCommit: item.gitCommit || 'N/A',
-            llmModel: item.llmModel || 'Gemini 1.5 Pro',
-            tokensUsed: item.tokenUsage || 0,
-            cost: item.executionCost || 0,
-            logs: [
-              { time: '17:42:08', level: 'INFO', message: 'Starting workflow: AUTONOMOUS_QA_PIPELINE' },
-              { time: '17:42:09', level: 'INFO', message: 'StepRequirementReader: Read user story US-001.md successfully.' },
-              { time: '17:42:15', level: 'INFO', message: 'StepQAAnalysis: Generated QA metrics and target locators.' },
-              { time: '17:42:25', level: 'INFO', message: 'StepTestCaseGeneration: Created 3 functional test cases.' },
-              { time: '17:42:35', level: 'INFO', message: 'StepScriptGeneration: Generated Playwright execution scripts.' },
-              { time: '17:42:45', level: 'INFO', message: 'StepExecution: Simulating Playwright run on environment Staging.' },
-              { time: '17:42:55', level: 'INFO', message: 'StepReporting: Workflow completed successfully. Statistics published.' }
-            ]
-          });
-        })
-        .catch((err) => console.warn('Could not fetch real execution details:', err));
-    }
-  }, [executionId]);
+  // PERF-3: useQuery with 60s cache — execution detail changes rarely mid-run;
+  // skip fetch for mock IDs (exec-*) so mock data stays in place.
+  const isRealId = !!executionId && !executionId.startsWith('exec-');
+  const fetcher = useCallback(
+    () => fetchExecutionDetail(executionId!),
+    [executionId]
+  );
+  const { data: apiDetail } = useQuery(
+    `execution:${executionId}`,
+    fetcher,
+    { ttl: 60_000, enabled: isRealId }
+  );
+
+  // Merge API data over MOCK_DETAILS — keeps mock logs/timeline when API is offline
+  const details = apiDetail ? { ...MOCK_DETAILS, ...apiDetail } : MOCK_DETAILS;
 
   return (
     <div className="space-y-lg p-lg">

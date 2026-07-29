@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { TestCase } from '../../mock/testcases';
+import type { TestCase } from '@/mock/testcases';
 import { useModules } from '../../contexts/ModuleContext';
 import { BrowserBadge } from './BrowserBadge';
 import { StatusBadge } from './StatusBadge';

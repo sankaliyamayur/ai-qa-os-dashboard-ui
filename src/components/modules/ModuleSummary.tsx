@@ -1,5 +1,6 @@
 import React from 'react';
-import type { Module } from '../../mock/modules';
+import type { Module } from '@/mock/modules';
+
 import { CheckCircle2, XCircle, AlertCircle, PlayCircle } from 'lucide-react';
 
 interface ModuleSummaryProps {

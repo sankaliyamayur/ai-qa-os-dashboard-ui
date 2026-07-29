@@ -1,4 +1,5 @@
 # MNT-1: CI for the dashboard UI — lint and test as a gate on every push/PR.
+# DX-8: quality:check step added — runs TypeScript strict type-check + oxlint (warn-mode; no-blocking).
 name: UI CI
 
 on:
@@ -21,6 +22,11 @@ jobs:
       run: npm ci
     - name: Lint
       run: npm run lint
+    # DX-8: Full quality gate — TypeScript compile + oxlint (strengthened rules: no-console, no-any warn)
+    # Uses `|| true` to keep non-blocking while teams address existing violations.
+    # Remove `|| true` once violations are resolved to make this a hard gate.
+    - name: Quality check (TypeScript + oxlint)
+      run: npm run quality:check || true
     - name: Test
       run: npm test
     # SEC-5: dependency CVE visibility — report-only (does not fail the build). Ratchet to blocking

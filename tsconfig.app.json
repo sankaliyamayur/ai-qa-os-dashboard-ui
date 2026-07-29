@@ -17,6 +17,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* ORG-3: Path aliases — @/ resolves to src/ */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,

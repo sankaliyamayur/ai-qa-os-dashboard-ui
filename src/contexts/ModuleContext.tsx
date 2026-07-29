@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import apiClient from '../config/apiClient';
-import { type Module } from '../mock/modules';
-import { type TestCase } from '../mock/testcases';
-import { MOCK_PIPELINE_EXECUTIONS, type PipelineExecution } from '../mock/executions';
-import { MOCK_HISTORY, type ExecutionHistoryItem } from '../mock/history';
+import { type Module } from '@/mock/modules';
+import { type TestCase } from '@/mock/testcases';
+import { MOCK_PIPELINE_EXECUTIONS, type PipelineExecution } from '@/mock/executions';
+import { MOCK_HISTORY, type ExecutionHistoryItem } from '@/mock/history';
+
 
 export interface FilterState {
   moduleId: string;
