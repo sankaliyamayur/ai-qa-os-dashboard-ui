@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert, Layers, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert, Layers, ClipboardCheck, Users, Wrench, Trophy } from 'lucide-react';
 
 export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -13,11 +13,18 @@ export const DashboardLayout: React.FC = () => {
     { path: '/executions', label: 'Executions', icon: <ListTodo className="w-4 h-4" /> },
     { path: '/live', label: 'Live Monitoring', icon: <Activity className="w-4 h-4" /> },
     { path: '/reviews', label: 'Human Review', icon: <ClipboardCheck className="w-4 h-4" /> },
+    { path: '/healing', label: 'Healing', icon: <Wrench className="w-4 h-4" /> },
+    { path: '/prompt-quality', label: 'Prompt Quality', icon: <Trophy className="w-4 h-4" /> },
   ];
 
   // Allow ADMIN and QA_MANAGER to see settings
   if (user?.role === 'ADMIN' || user?.role === 'QA_MANAGER') {
     navItems.push({ path: '/settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> });
+  }
+
+  // ENT-4: ADMIN-only user & access management
+  if (user?.role === 'ADMIN') {
+    navItems.push({ path: '/admin', label: 'Admin', icon: <Users className="w-4 h-4" /> });
   }
 
   return (

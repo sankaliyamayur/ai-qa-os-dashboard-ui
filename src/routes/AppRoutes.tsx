@@ -21,6 +21,9 @@ const ModulesPage = lazy(() => import('../pages/ModulesPage'));
 const ModuleDetailPage = lazy(() => import('../pages/ModuleDetailPage'));
 const TestCaseDetailPage = lazy(() => import('../pages/TestCaseDetailPage'));
 const HumanReviewPage = lazy(() => import('../pages/HumanReviewPage')); // AI-2
+const AdminPage = lazy(() => import('../pages/AdminPage')); // ENT-4
+const HealingDashboardPage = lazy(() => import('../pages/HealingDashboardPage')); // HEAL-3
+const PromptQualityPage = lazy(() => import('../pages/PromptQualityPage')); // PE-3
 
 const PageFallback: React.FC = () => (
   <div className="p-lg space-y-md">
@@ -54,6 +57,16 @@ export const AppRoutes: React.FC = () => {
               <Route path="/agent-traces" element={<MockPage title="Agent Trace Auditor" />} />
               <Route path="/live" element={<LiveMonitoringPage />} />
               <Route path="/reviews" element={<HumanReviewPage />} />{/* AI-2 */}
+              <Route
+                path="/admin"
+                element={
+                  <RoleGuard allowedRoles={['ADMIN']}>
+                    <AdminPage />
+                  </RoleGuard>
+                }
+              />{/* ENT-4 */}
+              <Route path="/healing" element={<HealingDashboardPage />} />{/* HEAL-3 */}
+              <Route path="/prompt-quality" element={<PromptQualityPage />} />{/* PE-3 */}
               <Route path="/modules" element={<ModulesPage />} />
               <Route path="/modules/:moduleId" element={<ModuleDetailPage />} />
               <Route path="/testcases/:testId" element={<TestCaseDetailPage />} />
