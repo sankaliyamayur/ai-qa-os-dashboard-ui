@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react';
-import { getPromptQuality, type PromptQualitySummary } from '../services/promptQualityService';
+import {
+  getPromptQuality,
+  getPromptRegressions,
+  type PromptQualitySummary,
+  type PromptRegressionReport,
+} from '../services/promptQualityService';
 import { MetricCard } from '../components/cards/MetricCard';
 
 /**
  * PE-3 — Prompt Quality dashboard. Read-only leaderboard over the PromptQualitySummary read-model,
- * aggregated from persisted evaluation results (no benchmark re-run).
+ * aggregated from persisted evaluation results (no benchmark re-run). FI-PE3-B adds a regressions
+ * panel — versions whose recent scores dropped below their earlier scores.
  */
 export default function PromptQualityPage() {
   const [summary, setSummary] = useState<PromptQualitySummary | null>(null);
+  const [regressions, setRegressions] = useState<PromptRegressionReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -15,10 +22,13 @@ export default function PromptQualityPage() {
     setLoading(true);
     setError(false);
     try {
-      setSummary(await getPromptQuality());
+      const [s, r] = await Promise.all([getPromptQuality(), getPromptRegressions()]);
+      setSummary(s);
+      setRegressions(r);
     } catch {
       setError(true);
       setSummary(null);
+      setRegressions(null);
     } finally {
       setLoading(false);
     }
@@ -98,6 +108,47 @@ export default function PromptQualityPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          <div className="bg-bg-card border border-bg-secondary rounded-lg shadow-flat-md overflow-hidden">
+            <div className="px-md py-sm border-b border-bg-secondary flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-text-main">
+                Regressions{regressions ? ` (${regressions.regressedCount})` : ''}
+              </h2>
+              {regressions && (
+                <span className="text-xs text-text-muted">
+                  versions declining over time · tolerance {regressions.tolerance.toFixed(2)}
+                </span>
+              )}
+            </div>
+            {regressions && regressions.regressedCount > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs text-text-muted uppercase tracking-wider">
+                      <th className="px-md py-sm font-semibold">Version</th>
+                      <th className="px-md py-sm font-semibold">Baseline</th>
+                      <th className="px-md py-sm font-semibold">Current</th>
+                      <th className="px-md py-sm font-semibold">Δ</th>
+                      <th className="px-md py-sm font-semibold">Samples</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {regressions.regressions.map((r) => (
+                      <tr key={r.versionId} className="border-t border-bg-secondary">
+                        <td className="px-md py-sm text-text-main font-medium">{r.versionId}</td>
+                        <td className="px-md py-sm text-text-muted">{r.baselineScore.toFixed(3)}</td>
+                        <td className="px-md py-sm text-text-main">{r.currentScore.toFixed(3)}</td>
+                        <td className="px-md py-sm text-status-error">{r.delta.toFixed(3)}</td>
+                        <td className="px-md py-sm text-text-muted">{r.sampleCount}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="px-md py-md text-text-muted">No regressions detected.</p>
+            )}
           </div>
         </>
       )}
