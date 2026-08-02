@@ -15,6 +15,7 @@ export const DashboardLayout: React.FC = () => {
     { path: '/reviews', label: 'Human Review', icon: <ClipboardCheck className="w-4 h-4" /> },
     { path: '/healing', label: 'Healing', icon: <Wrench className="w-4 h-4" /> },
     { path: '/prompt-quality', label: 'Prompt Quality', icon: <Trophy className="w-4 h-4" /> },
+    { path: '/compliance', label: 'Compliance', icon: <ShieldAlert className="w-4 h-4" /> },
   ];
 
   // Allow ADMIN and QA_MANAGER to see settings

@@ -24,6 +24,7 @@ const HumanReviewPage = lazy(() => import('../pages/HumanReviewPage')); // AI-2
 const AdminPage = lazy(() => import('../pages/AdminPage')); // ENT-4
 const HealingDashboardPage = lazy(() => import('../pages/HealingDashboardPage')); // HEAL-3
 const PromptQualityPage = lazy(() => import('../pages/PromptQualityPage')); // PE-3
+const CompliancePage = lazy(() => import('../pages/CompliancePage')); // GOV-2
 
 const PageFallback: React.FC = () => (
   <div className="p-lg space-y-md">
@@ -67,6 +68,7 @@ export const AppRoutes: React.FC = () => {
               />{/* ENT-4 */}
               <Route path="/healing" element={<HealingDashboardPage />} />{/* HEAL-3 */}
               <Route path="/prompt-quality" element={<PromptQualityPage />} />{/* PE-3 */}
+              <Route path="/compliance" element={<CompliancePage />} />{/* GOV-2 */}
               <Route path="/modules" element={<ModulesPage />} />
               <Route path="/modules/:moduleId" element={<ModuleDetailPage />} />
               <Route path="/testcases/:testId" element={<TestCaseDetailPage />} />
