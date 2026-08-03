@@ -14,9 +14,10 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // GOV-2 (FI-GOV2-A): the compliance read-model is served by the gateway (8080), not the dashboard.
+      // GOV-2 (FI-GOV2-A): the compliance read-model is served by the gateway (8082 — its configured
+      // server.port; the dashboard read APIs are on 8090), not the dashboard.
       '/api/governance': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8082',
         changeOrigin: true,
         secure: false,
       },
