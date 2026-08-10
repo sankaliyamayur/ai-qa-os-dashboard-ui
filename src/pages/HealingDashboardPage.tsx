@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getHealingAnalytics, type HealingAnalyticsSummary } from '../services/healingService';
+import {
+  getHealingAnalytics,
+  getLocatorDrift,
+  type HealingAnalyticsSummary,
+  type LocatorDriftEntry,
+} from '../services/healingService';
 import { MetricCard } from '../components/cards/MetricCard';
 
 /**
@@ -8,6 +13,7 @@ import { MetricCard } from '../components/cards/MetricCard';
  */
 export default function HealingDashboardPage() {
   const [summary, setSummary] = useState<HealingAnalyticsSummary | null>(null);
+  const [drift, setDrift] = useState<LocatorDriftEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -15,10 +21,16 @@ export default function HealingDashboardPage() {
     setLoading(true);
     setError(false);
     try {
-      setSummary(await getHealingAnalytics());
-    } catch {
-      setError(true);
-      setSummary(null);
+      // FI-HEAL3-B is fetched independently of the summary: they read different tables, so one
+      // being empty must not blank the other (the FI-PE3-C lesson).
+      const [analytics, drifting] = await Promise.allSettled([getHealingAnalytics(), getLocatorDrift()]);
+      if (analytics.status === 'fulfilled') {
+        setSummary(analytics.value);
+      } else {
+        setError(true);
+        setSummary(null);
+      }
+      setDrift(drifting.status === 'fulfilled' ? drifting.value : []);
     } finally {
       setLoading(false);
     }
@@ -64,6 +76,62 @@ export default function HealingDashboardPage() {
             <Breakdown title="By failure category" data={summary.failureCategoryBreakdown} />
           </div>
         </>
+      )}
+
+      {!loading && <LocatorDrift entries={drift} />}
+    </div>
+  );
+}
+
+/** HEAL-3 (FI-HEAL3-B): which locators break most, and how often anything can fix them. */
+function LocatorDrift({ entries }: { entries: LocatorDriftEntry[] }) {
+  return (
+    <div className="bg-bg-card border border-bg-secondary rounded-lg shadow-flat-md overflow-hidden">
+      <div className="px-md py-sm border-b border-bg-secondary">
+        <h2 className="text-sm font-semibold text-text-main">Most-drifting locators</h2>
+        <p className="text-xs text-text-muted mt-xs">
+          FI-HEAL3-B · selectors ranked by observed failures, with how often a replacement was proposed.
+        </p>
+      </div>
+
+      {entries.length === 0 ? (
+        <div className="px-md py-md text-sm text-text-muted">
+          No locator drift observed yet. Failures are recorded only when a run names exactly one
+          locator, and only when
+          <code className="mx-xs px-xs rounded-sm bg-bg-secondary text-text-main">
+            aiqaos.healing.locator-drift.enabled=true
+          </code>
+          is set.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-text-muted">
+              <tr>
+                <th className="text-left px-md py-sm font-medium">Selector</th>
+                <th className="text-right px-md py-sm font-medium">Failures</th>
+                <th className="text-right px-md py-sm font-medium">Heals proposed</th>
+                <th className="text-right px-md py-sm font-medium">Heal rate</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-bg-secondary">
+              {entries.map((e) => (
+                <tr key={e.selector}>
+                  <td className="px-md py-sm font-mono text-xs text-text-main break-all">{e.selector}</td>
+                  <td className="px-md py-sm text-right text-text-main">{e.failures}</td>
+                  <td className="px-md py-sm text-right text-text-muted">{e.healsProposed}</td>
+                  <td
+                    className={`px-md py-sm text-right font-medium ${
+                      e.healRate === 0 ? 'text-status-error' : 'text-text-main'
+                    }`}
+                  >
+                    {(e.healRate * 100).toFixed(0)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
