@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "quality:check": "tsc -b --noEmit && oxlint",
+    "quality:check": "tsc -b && oxlint",
     "test": "vitest run",
     "preview": "vite preview"
   },
