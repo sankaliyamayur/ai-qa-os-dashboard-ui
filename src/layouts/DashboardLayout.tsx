@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert, Layers, ClipboardCheck, Users, Wrench, Trophy } from 'lucide-react';
+import { LayoutDashboard, ListTodo, Activity, Settings, LogOut, ShieldAlert, Layers, ClipboardCheck, Users, Wrench, Trophy, Brain } from 'lucide-react';
 
 export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -15,6 +15,7 @@ export const DashboardLayout: React.FC = () => {
     { path: '/reviews', label: 'Human Review', icon: <ClipboardCheck className="w-4 h-4" /> },
     { path: '/healing', label: 'Healing', icon: <Wrench className="w-4 h-4" /> },
     { path: '/prompt-quality', label: 'Prompt Quality', icon: <Trophy className="w-4 h-4" /> },
+    { path: '/learning', label: 'Learning', icon: <Brain className="w-4 h-4" /> },
     { path: '/compliance', label: 'Compliance', icon: <ShieldAlert className="w-4 h-4" /> },
   ];
 
