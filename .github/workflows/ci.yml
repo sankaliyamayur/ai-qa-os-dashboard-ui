@@ -22,13 +22,23 @@ jobs:
       run: npm ci
     - name: Lint
       run: npm run lint
-    # DX-8: Full quality gate — TypeScript compile + oxlint (strengthened rules: no-console, no-any warn)
-    # Uses `|| true` to keep non-blocking while teams address existing violations.
-    # Remove `|| true` once violations are resolved to make this a hard gate.
+    # DX-8: TypeScript compile + oxlint, now a REAL gate.
+    #
+    # This step was `|| true`, described as temporary while violations were addressed. The suppression
+    # was in fact hiding a script that could never pass: `quality:check` ran `tsc -b --noEmit`, an
+    # invalid flag combination (TS5094 "'--noEmit' may not be used with '--build'"). So the type check
+    # had never run — on any PR, ever — and `|| true` made that indistinguishable from success.
+    # Script fixed to `tsc -b && oxlint`; the suppression is no longer needed and no longer wanted.
     - name: Quality check (TypeScript + oxlint)
-      run: npm run quality:check || true
+      run: npm run quality:check
     - name: Test
       run: npm test
+    # The production build was never run in CI, so a change could break `tsc -b && vite build` and
+    # still show a green tick — lint and one vitest file cannot see a broken bundle. This matters most
+    # for dependency bumps: a TypeScript or Tailwind major can pass lint and tests while leaving the
+    # app uncompilable or unstyled.
+    - name: Build
+      run: npm run build
     # SEC-5: dependency CVE visibility — report-only (does not fail the build). Ratchet to blocking
     # once the backlog is triaged (FI-SEC5-A). `|| true` keeps it non-blocking.
     - name: Dependency audit (report-only)
