@@ -43,3 +43,35 @@ export async function getPromptRegressions(): Promise<PromptRegressionReport> {
   const res = await apiClient.get<PromptRegressionReport>('/dashboard/prompt-quality/regressions');
   return res.data;
 }
+
+/**
+ * FI-PE3-C: one recorded prompt render. `promptPreview` is a truncated preview — the backend never
+ * serves the full compiled prompt on this unauthenticated surface (compiled prompts embed injected
+ * user-story/failure context), so use `promptLength` for the true size.
+ */
+export interface PromptHistoryEntry {
+  id: string;
+  templateName: string | null;
+  versionLabel: string | null;
+  correlationId: string | null;
+  traceId: string | null;
+  responseTimeMs: number;
+  promptLength: number;
+  promptPreview: string;
+  executedAt: string | null;
+}
+
+/**
+ * FI-PE3-C: per-execution prompt history. Pass a `correlationId` to see every prompt rendered during
+ * one workflow run; omit it for the most recent renders across all runs.
+ */
+export async function getPromptHistory(
+  correlationId?: string,
+  limit?: number,
+): Promise<PromptHistoryEntry[]> {
+  const params: Record<string, string | number> = {};
+  if (correlationId && correlationId.trim()) params.correlationId = correlationId.trim();
+  if (limit) params.limit = limit;
+  const res = await apiClient.get<PromptHistoryEntry[]>('/dashboard/prompt-quality/history', { params });
+  return res.data;
+}
