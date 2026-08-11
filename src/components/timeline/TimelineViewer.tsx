@@ -34,8 +34,8 @@ export const TimelineViewer: React.FC<TimelineViewerProps> = ({ events }) => {
       <div className="flex flex-col items-center">
         {events.map((event, idx) => (
           <React.Fragment key={event.id}>
-            <div className="flex items-center space-x-md w-full max-w-lg p-sm bg-bg-secondary/40 border border-bg-secondary rounded-md hover:border-accent-primary/40 transition-colors">
-              <div className="flex-shrink-0">{getIcon(event.status)}</div>
+            <div className="flex items-center space-x-md w-full max-w-[32rem] p-sm bg-bg-secondary/40 border border-bg-secondary rounded-md hover:border-accent-primary/40 transition-colors">
+              <div className="shrink-0">{getIcon(event.status)}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-sm text-text-main">{event.stageName}</span>

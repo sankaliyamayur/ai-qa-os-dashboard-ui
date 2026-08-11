@@ -57,7 +57,7 @@ export const SettingsPage: React.FC = () => {
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                className="flex-1 px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary"
+                className="flex-1 px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary"
               />
               <button className="flex items-center px-md py-sm bg-status-success text-white rounded-md font-semibold hover:opacity-95 text-xs transition-opacity">
                 <Save className="w-4 h-4 mr-xs" /> Save
@@ -81,7 +81,7 @@ export const SettingsPage: React.FC = () => {
               value={newEnv}
               onChange={(e) => setNewEnv(e.target.value)}
               placeholder="Add new environment (e.g. Preprod)"
-              className="flex-1 px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary text-xs"
+              className="flex-1 px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-xs"
             />
             <button
               type="submit"

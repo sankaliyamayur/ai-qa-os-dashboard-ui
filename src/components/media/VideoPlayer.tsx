@@ -14,7 +14,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, testName }) 
       <div className="flex flex-col items-center justify-center p-lg bg-bg-secondary rounded-lg border border-dashed border-bg-secondary text-text-muted space-y-xs">
         <Video className="w-10 h-10 mb-sm" />
         <p className="text-sm font-semibold">No execution video available.</p>
-        <p className="text-xs text-center max-w-xs">
+        <p className="text-xs text-center max-w-[20rem]">
           Videos are recorded during Playwright execution and retained only on failure<br />
           (<code className="font-mono bg-bg-primary px-xs rounded">video: 'retain-on-failure'</code>).
         </p>

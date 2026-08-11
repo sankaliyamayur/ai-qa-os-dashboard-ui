@@ -101,7 +101,7 @@ export const ExecutionsPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search Workflow ID or Name..."
-            className="w-full pl-[40px] pr-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+            className="w-full pl-[40px] pr-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-sm"
           />
         </div>
         <div className="flex items-center space-x-sm">
@@ -109,7 +109,7 @@ export const ExecutionsPage: React.FC = () => {
           <select
             value={envFilter}
             onChange={(e) => setEnvFilter(e.target.value)}
-            className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary text-sm"
+            className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-sm"
           >
             <option value="ALL">All Environments</option>
             <option value="Development">Development</option>

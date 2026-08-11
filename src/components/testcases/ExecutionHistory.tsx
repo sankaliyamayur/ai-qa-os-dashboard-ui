@@ -42,7 +42,7 @@ export const ExecutionHistory: React.FC<ExecutionHistoryProps> = ({ historyItems
                   <div className="space-y-[2px]">
                     <div className="flex items-center space-x-sm">
                       <span
-                        className={`text-xs font-semibold px-sm py-[1px] rounded-full ${
+                        className={`text-xs font-semibold px-sm py-px rounded-full ${
                           run.status?.toLowerCase() === 'passed' || run.status?.toLowerCase() === 'success'
                             ? 'bg-status-success/10 text-status-success'
                             : run.status?.toLowerCase() === 'failed' || run.status?.toLowerCase() === 'error'

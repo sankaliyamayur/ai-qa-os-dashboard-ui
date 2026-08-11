@@ -41,7 +41,7 @@ export const TestCaseTable: React.FC<TestCaseTableProps> = ({ testCases }) => {
   return (
     <div className="space-y-md">
       {/* Search inside module */}
-      <div className="relative w-full max-w-sm">
+      <div className="relative w-full max-w-[24rem]">
         <Search className="absolute left-sm top-[10px] w-4 h-4 text-text-muted" />
         <input
           type="text"
@@ -51,7 +51,7 @@ export const TestCaseTable: React.FC<TestCaseTableProps> = ({ testCases }) => {
             setCurrentPage(1);
           }}
           placeholder="Search test cases..."
-          className="w-full pl-[36px] pr-md py-xs bg-bg-secondary text-text-main rounded-md border border-bg-secondary focus:outline-none focus:ring-2 focus:ring-accent-primary text-xs shadow-flat-sm"
+          className="w-full pl-[36px] pr-md py-xs bg-bg-secondary text-text-main rounded-md border border-bg-secondary focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-xs shadow-flat-sm"
         />
       </div>
 

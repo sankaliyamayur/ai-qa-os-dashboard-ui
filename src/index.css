@@ -1,6 +1,89 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Tailwind v4 migration notes.
+ *
+ * 1. `@theme inline`, not plain `@theme`. This project's design tokens are runtime CSS variables
+ *    defined in `:root` / `.dark` below, so the theme entries reference variables of the same name.
+ *    Plain `@theme` re-emits each entry into `:root`, producing
+ *    `--color-bg-primary: var(--color-bg-primary)` — self-referential and invalid at
+ *    computed-value time. `inline` makes Tailwind put the reference in the utility itself
+ *    (`.bg-bg-card { background-color: var(--color-bg-card) }`) instead of copying a value, so the
+ *    `:root` / `.dark` blocks stay the single source of truth and dark mode still switches at runtime.
+ *
+ * 2. Named sizes moved to arbitrary values. Our spacing tokens are named xs/sm/md/lg/xl. In v3,
+ *    `max-w-md` came from a separate `maxWidth` scale; in v4 `max-w-*` also reads `--spacing-*`, so
+ *    `max-w-md` resolved to `--spacing-md` (1rem) instead of 28rem — measured at 16px, which
+ *    collapsed the login card to a vertical sliver with text wrapping one character per line.
+ *    Declaring `--container-md` alongside it does NOT win; that was tried and measured, and the
+ *    utility still resolved to the spacing value. So the 11 `max-w-{xs,sm,md,lg,xl}` usages are now
+ *    explicit (`max-w-[28rem]` etc.). Do not reintroduce the named forms while the spacing tokens
+ *    share those names.
+ *
+ * Neither problem produced a build error or a type error — both were found by screenshotting the
+ * running app and measuring computed styles.
+ */
+@theme inline {
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-card: var(--color-bg-card);
+
+  --color-text-main: var(--color-text-main);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-inverse: var(--color-text-inverse);
+
+  --color-accent-primary: var(--color-accent-primary);
+  --color-accent-hover: var(--color-accent-hover);
+
+  --color-status-success: var(--color-status-success);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-error: var(--color-status-error);
+  --color-status-info: var(--color-status-info);
+
+  --spacing-xs: var(--spacing-xs);
+  --spacing-sm: var(--spacing-sm);
+  --spacing-md: var(--spacing-md);
+  --spacing-lg: var(--spacing-lg);
+  --spacing-xl: var(--spacing-xl);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-flat-sm: var(--shadow-sm);
+  --shadow-flat-md: var(--shadow-md);
+  --shadow-flat-lg: var(--shadow-lg);
+
+  --transition-duration-fast: var(--duration-fast);
+  --transition-duration-standard: var(--duration-standard);
+  --transition-duration-slow: var(--duration-slow);
+
+  --z-index-dropdown: var(--z-index-dropdown);
+  --z-index-header: var(--z-index-header);
+  --z-index-sidebar: var(--z-index-sidebar);
+  --z-index-modal: var(--z-index-modal);
+  --z-index-tooltip: var(--z-index-tooltip);
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @layer base {
   :root {
