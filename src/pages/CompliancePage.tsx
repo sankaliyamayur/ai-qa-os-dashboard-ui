@@ -67,7 +67,7 @@ export default function CompliancePage() {
             >
               <div className="px-md py-sm border-b border-bg-secondary flex items-center justify-between gap-md">
                 <h2 className="text-sm font-semibold text-text-main">{f.framework.replace('_', ' ')}</h2>
-                <div className="flex items-center gap-sm flex-1 max-w-md">
+                <div className="flex items-center gap-sm flex-1 max-w-[28rem]">
                   <div className="flex-1 h-2 rounded-full bg-bg-secondary overflow-hidden">
                     <div
                       className="h-full bg-status-success"

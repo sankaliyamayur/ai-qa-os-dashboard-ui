@@ -48,7 +48,7 @@ export const AttachmentViewer: React.FC<AttachmentViewerProps> = ({
       <div className="flex flex-col items-center justify-center p-lg bg-bg-secondary rounded-lg border border-dashed border-bg-secondary text-text-muted space-y-xs">
         <PackageOpen className="w-10 h-10 mb-sm" />
         <p className="text-sm font-semibold">No attachments available.</p>
-        <p className="text-xs text-center max-w-xs">
+        <p className="text-xs text-center max-w-[20rem]">
           Playwright artifacts (HTML report, trace, network log) are only generated<br />
           when a test case is executed and fails.
         </p>

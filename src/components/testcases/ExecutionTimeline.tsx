@@ -30,7 +30,7 @@ export const ExecutionTimeline: React.FC<ExecutionTimelineProps> = ({ steps }) =
         Execution Step Timeline
       </h3>
 
-      <div className="flex flex-col items-center py-md space-y-xs max-w-xl mx-auto">
+      <div className="flex flex-col items-center py-md space-y-xs max-w-[36rem] mx-auto">
         {steps.map((step, idx) => {
           const isLast = idx === steps.length - 1;
           return (

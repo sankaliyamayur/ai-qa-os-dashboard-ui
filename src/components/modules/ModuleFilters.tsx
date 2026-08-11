@@ -32,7 +32,7 @@ export const ModuleFilters: React.FC = () => {
           <select
             value={filters.status}
             onChange={e => handleChange('status', e.target.value)}
-            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-none focus:ring-2 focus:ring-accent-primary text-xs"
+            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-xs"
           >
             <option value="ALL">All Statuses</option>
             <option value="Passed">Passed</option>
@@ -47,7 +47,7 @@ export const ModuleFilters: React.FC = () => {
           <select
             value={filters.priority}
             onChange={e => handleChange('priority', e.target.value)}
-            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-none focus:ring-2 focus:ring-accent-primary text-xs"
+            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-xs"
           >
             <option value="ALL">All Priorities</option>
             <option value="High">High</option>
@@ -62,7 +62,7 @@ export const ModuleFilters: React.FC = () => {
           <select
             value={filters.environment}
             onChange={e => handleChange('environment', e.target.value)}
-            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-none focus:ring-2 focus:ring-accent-primary text-xs"
+            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-xs"
           >
             <option value="ALL">All Environments</option>
             <option value="Staging">Staging</option>
@@ -77,7 +77,7 @@ export const ModuleFilters: React.FC = () => {
           <select
             value={filters.browser}
             onChange={e => handleChange('browser', e.target.value)}
-            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-none focus:ring-2 focus:ring-accent-primary text-xs"
+            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-xs"
           >
             <option value="ALL">All Browsers</option>
             <option value="Chrome">Chrome</option>
@@ -93,7 +93,7 @@ export const ModuleFilters: React.FC = () => {
           <select
             value={filters.buildNumber}
             onChange={e => handleChange('buildNumber', e.target.value)}
-            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-none focus:ring-2 focus:ring-accent-primary text-xs"
+            className="w-full px-sm py-xs bg-bg-secondary text-text-main border border-bg-secondary rounded focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-xs"
           >
             <option value="ALL">All Builds</option>
             <option value="Bld-2026.07.17-01">Bld-2026.07.17-01</option>

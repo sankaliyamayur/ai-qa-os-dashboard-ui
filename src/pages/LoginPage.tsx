@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-primary p-md">
-      <div className="w-full max-w-md bg-bg-card p-lg rounded-xl shadow-flat-lg border border-bg-secondary">
+      <div className="w-full max-w-[28rem] bg-bg-card p-lg rounded-xl shadow-flat-lg border border-bg-secondary">
         <h2 className="text-2xl font-bold text-accent-primary mb-md text-center">AI-QA-OS Login</h2>
         {error && (
           <div className="p-sm mb-md bg-red-100 text-red-700 text-xs rounded border border-red-200">
@@ -64,7 +64,7 @@ export const LoginPage: React.FC = () => {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary"
               placeholder="Enter your username"
             />
           </div>
@@ -76,7 +76,7 @@ export const LoginPage: React.FC = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary"
               placeholder="Enter your password"
             />
           </div>
@@ -86,7 +86,7 @@ export const LoginPage: React.FC = () => {
               id="login-role"
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
-              className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-accent-primary"
+              className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary"
             >
               <option value="VIEWER">Viewer</option>
               <option value="QA_ENGINEER">QA Engineer</option>

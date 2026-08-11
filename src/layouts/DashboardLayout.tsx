@@ -36,7 +36,7 @@ export const DashboardLayout: React.FC = () => {
         <div className="flex items-center space-x-md">
           <div className="flex items-center space-x-xs">
             <ShieldAlert className="w-6 h-6 text-accent-primary animate-pulse" />
-            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-accent-primary to-accent-hover bg-clip-text text-transparent">
+            <span className="text-xl font-bold tracking-tight bg-linear-to-r from-accent-primary to-accent-hover bg-clip-text text-transparent">
               AI-QA-OS
             </span>
           </div>

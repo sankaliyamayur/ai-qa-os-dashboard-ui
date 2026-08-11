@@ -226,7 +226,7 @@ export default function PromptQualityPage() {
                     </td>
                     <td className="px-md py-sm text-text-main">{h.responseTimeMs}</td>
                     <td className="px-md py-sm text-text-muted">{h.promptLength}</td>
-                    <td className="px-md py-sm text-text-muted max-w-md truncate" title={h.promptPreview}>
+                    <td className="px-md py-sm text-text-muted max-w-[28rem] truncate" title={h.promptPreview}>
                       {h.promptPreview}
                     </td>
                     <td className="px-md py-sm text-text-muted whitespace-nowrap">
