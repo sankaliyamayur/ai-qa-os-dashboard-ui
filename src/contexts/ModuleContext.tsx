@@ -59,25 +59,27 @@ export const ModuleProvider = ({ children }: { children: ReactNode }) => {
         ]);
 
         // Normalize test cases first
-        const normalizedTCs = (tcRes.data as any[]).map((tc: any) => ({
+        const tcList = Array.isArray(tcRes?.data) ? tcRes.data : [];
+        const normalizedTCs = tcList.map((tc: any) => ({
           ...tc,
-          moduleId: tc.moduleId ?? tc.module_id,
-          feature: tc.feature ?? 'General',
-          status: tc.status ?? 'Unknown',
+          moduleId: tc?.moduleId ?? tc?.module_id,
+          feature: tc?.feature ?? 'General',
+          status: tc?.status ?? 'Unknown',
         }));
 
         // Normalize backend module fields & compute exact statistics from test cases
-        const normalizedModules = (modRes.data as any[]).map((m: any) => {
-          const modTCs = normalizedTCs.filter((tc: any) => tc.moduleId === m.id);
+        const modList = Array.isArray(modRes?.data) ? modRes.data : [];
+        const normalizedModules = modList.map((m: any) => {
+          const modTCs = normalizedTCs.filter((tc: any) => tc.moduleId === m?.id);
           const hasTCs = modTCs.length > 0;
           
           const passedCount = hasTCs 
             ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'passed').length 
-            : Math.round(((m.passRate ?? m.pass_rate ?? 0) / 100) * (m.totalTestCases ?? m.total_test_cases ?? 0));
+            : Math.round(((m?.passRate ?? m?.pass_rate ?? 0) / 100) * (m?.totalTestCases ?? m?.total_test_cases ?? 0));
             
           const failedCount = hasTCs 
             ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'failed').length 
-            : Math.round(((100 - (m.passRate ?? m.pass_rate ?? 0)) / 100) * (m.totalTestCases ?? m.total_test_cases ?? 0));
+            : Math.round(((100 - (m?.passRate ?? m?.pass_rate ?? 0)) / 100) * (m?.totalTestCases ?? m?.total_test_cases ?? 0));
             
           const skippedCount = hasTCs 
             ? modTCs.filter((tc: any) => {
@@ -86,21 +88,21 @@ export const ModuleProvider = ({ children }: { children: ReactNode }) => {
               }).length 
             : 0;
 
-          const totalCount = hasTCs ? modTCs.length : (m.totalTestCases ?? m.total_test_cases ?? 0);
-          const computedPassRate = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : (m.passRate ?? m.pass_rate ?? 0);
+          const totalCount = hasTCs ? modTCs.length : (m?.totalTestCases ?? m?.total_test_cases ?? 0);
+          const computedPassRate = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : (m?.passRate ?? m?.pass_rate ?? 0);
 
           return {
-            id: m.id,
-            name: m.name,
-            description: m.description ?? '',
-            requirementPath: m.requirementPath ?? m.requirement_path,
+            id: m?.id ?? 'unknown',
+            name: m?.name ?? 'Unnamed Module',
+            description: m?.description ?? '',
+            requirementPath: m?.requirementPath ?? m?.requirement_path,
             totalTests: totalCount,
             passRate: computedPassRate,
             passed: passedCount,
             failed: failedCount,
             skipped: skippedCount,
-            lastExecution: m.lastRun ?? m.last_run ?? '',
-            tenantId: m.tenantId ?? m.tenant_id,
+            lastExecution: m?.lastRun ?? m?.last_run ?? '',
+            tenantId: m?.tenantId ?? m?.tenant_id,
           };
         });
 

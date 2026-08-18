@@ -27,11 +27,14 @@ interface SectionCardProps {
   onNavigate: (moduleId: string) => void;
 }
 
-const SectionCard: React.FC<SectionCardProps> = ({ moduleId, sectionName, testCases, storyPath, onNavigate }) => {
-  const passed  = testCases.filter(tc => (tc.status ?? '').toLowerCase() === 'passed').length;
-  const failed  = testCases.filter(tc => (tc.status ?? '').toLowerCase() === 'failed').length;
-  const skipped = testCases.length - passed - failed;
-  const passRate = testCases.length > 0 ? Math.round((passed / testCases.length) * 100) : 0;
+const SectionCard: React.FC<SectionCardProps> = ({ moduleId, sectionName, testCases = [], storyPath, onNavigate }) => {
+  const safeTCs = Array.isArray(testCases) ? testCases : [];
+  const passed  = safeTCs.filter(tc => (tc?.status ?? '').toLowerCase() === 'passed').length;
+  const failed  = safeTCs.filter(tc => (tc?.status ?? '').toLowerCase() === 'failed').length;
+  const skipped = safeTCs.length - passed - failed;
+  const passRate = safeTCs.length > 0 ? Math.round((passed / safeTCs.length) * 100) : 0;
+
+  const storyPathStr = typeof storyPath === 'string' ? storyPath : '';
 
   const passColor =
     passRate >= 95 ? 'text-status-success' :
@@ -82,12 +85,12 @@ const SectionCard: React.FC<SectionCardProps> = ({ moduleId, sectionName, testCa
       </div>
 
       {/* Story path */}
-      {storyPath && (
+      {storyPathStr ? (
         <p className="mt-sm text-[10px] text-text-muted truncate flex items-center gap-xs">
           <BookOpen className="w-3 h-3 flex-shrink-0" />
-          {storyPath}
+          {storyPathStr}
         </p>
-      )}
+      ) : null}
     </div>
   );
 };

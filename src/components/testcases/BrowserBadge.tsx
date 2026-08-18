@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chrome, Flame, Compass, Monitor } from 'lucide-react';
+import { Globe, Flame, Compass, Monitor } from 'lucide-react';
 
 interface BrowserBadgeProps {
   browser: 'Chrome' | 'Firefox' | 'Safari' | 'Edge' | string;
@@ -9,7 +9,7 @@ export const BrowserBadge: React.FC<BrowserBadgeProps> = ({ browser }) => {
   const getIcon = () => {
     switch (browser) {
       case 'Chrome':
-        return <Chrome className="w-3.5 h-3.5" />;
+        return <Globe className="w-3.5 h-3.5" />;
       case 'Firefox':
         return <Flame className="w-3.5 h-3.5" />;
       case 'Safari':
