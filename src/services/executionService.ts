@@ -62,8 +62,14 @@ function toRow(item: any): ExecutionRow {
  * Returns up to `size` rows ordered by most-recent first.
  */
 export async function fetchExecutions(size = 50): Promise<ExecutionRow[]> {
-  const res = await apiClient.get<{ content: any[] }>(`/dashboard/executions?size=${size}`);
-  const content = res.data?.content ?? [];
+  const res = await apiClient.get<any>(`/dashboard/executions?size=${size}`);
+  const rawData = res.data;
+  let content: any[] = [];
+  if (Array.isArray(rawData)) {
+    content = rawData;
+  } else if (rawData && Array.isArray(rawData.content)) {
+    content = rawData.content;
+  }
   return content.map(toRow);
 }
 
