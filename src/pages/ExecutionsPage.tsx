@@ -11,13 +11,20 @@ export const ExecutionsPage: React.FC = () => {
   const [envFilter, setEnvFilter] = useState('ALL');
   const navigate = useNavigate();
 
-  // PERF-3: useQuery with 30s cache — prevents re-fetching on every re-render/navigation
+  // PERF-3: useQuery with 2s cache and live polling for execution updates
   const fetcher = useCallback(() => fetchExecutions(50), []);
-  const { data: apiRows } = useQuery<ExecutionRow[]>(
+  const { data: apiRows, refetch } = useQuery<ExecutionRow[]>(
     'executions',
     fetcher,
-    { ttl: 30_000 }
+    { ttl: 2_000 }
   );
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      refetch();
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [refetch]);
 
   // Pure live data from backend API
   const rows: ExecutionRow[] = apiRows ?? [];
