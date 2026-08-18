@@ -5,7 +5,6 @@ import { type TestCase } from '@/mock/testcases';
 import { MOCK_PIPELINE_EXECUTIONS, type PipelineExecution } from '@/mock/executions';
 import { MOCK_HISTORY, type ExecutionHistoryItem } from '@/mock/history';
 
-
 export interface FilterState {
   moduleId: string;
   status: string;
@@ -58,15 +57,59 @@ export const ModuleProvider = ({ children }: { children: ReactNode }) => {
           apiClient.get('/dashboard/modules'),
           apiClient.get('/dashboard/testcases')
         ]);
-        setModules(modRes.data);
-        setTestCases(tcRes.data);
+
+        // Normalize test cases first
+        const normalizedTCs = (tcRes.data as any[]).map((tc: any) => ({
+          ...tc,
+          moduleId: tc.moduleId ?? tc.module_id,
+          feature: tc.feature ?? 'General',
+          status: tc.status ?? 'Unknown',
+        }));
+
+        // Normalize backend module fields & compute exact statistics from test cases
+        const normalizedModules = (modRes.data as any[]).map((m: any) => {
+          const modTCs = normalizedTCs.filter((tc: any) => tc.moduleId === m.id);
+          const hasTCs = modTCs.length > 0;
+          
+          const passedCount = hasTCs 
+            ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'passed').length 
+            : Math.round(((m.passRate ?? m.pass_rate ?? 0) / 100) * (m.totalTestCases ?? m.total_test_cases ?? 0));
+            
+          const failedCount = hasTCs 
+            ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'failed').length 
+            : Math.round(((100 - (m.passRate ?? m.pass_rate ?? 0)) / 100) * (m.totalTestCases ?? m.total_test_cases ?? 0));
+            
+          const skippedCount = hasTCs 
+            ? modTCs.filter((tc: any) => {
+                const st = (tc.status ?? '').toLowerCase();
+                return st !== 'passed' && st !== 'failed';
+              }).length 
+            : 0;
+
+          const totalCount = hasTCs ? modTCs.length : (m.totalTestCases ?? m.total_test_cases ?? 0);
+          const computedPassRate = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : (m.passRate ?? m.pass_rate ?? 0);
+
+          return {
+            id: m.id,
+            name: m.name,
+            description: m.description ?? '',
+            requirementPath: m.requirementPath ?? m.requirement_path,
+            totalTests: totalCount,
+            passRate: computedPassRate,
+            passed: passedCount,
+            failed: failedCount,
+            skipped: skippedCount,
+            lastExecution: m.lastRun ?? m.last_run ?? '',
+            tenantId: m.tenantId ?? m.tenant_id,
+          };
+        });
+
+        setTestCases(normalizedTCs);
+        setModules(normalizedModules);
       } catch (err) {
-        console.error('Error fetching modules/testcases, falling back to mock data', err);
-        // Fallback to mock data if backend isn't ready
-        const { MOCK_MODULES } = await import('../mock/modules');
-        const { MOCK_TEST_CASES } = await import('../mock/testcases');
-        setModules(MOCK_MODULES);
-        setTestCases(MOCK_TEST_CASES);
+        console.error('Error fetching modules/testcases live data', err);
+        setModules([]);
+        setTestCases([]);
       } finally {
         setLoading(false);
       }

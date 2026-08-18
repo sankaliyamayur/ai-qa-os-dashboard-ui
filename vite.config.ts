@@ -21,6 +21,21 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/api/v1': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/api/auth': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/api/admin': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api': {
         target: 'http://localhost:8090',
         changeOrigin: true,

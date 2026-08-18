@@ -1,47 +1,90 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { AreaChartCard } from '../components/charts/AreaChartCard';
 import { BarChartCard } from '../components/charts/BarChartCard';
 import { PieChartCard } from '../components/charts/PieChartCard';
 import { StackedBarChartCard } from '../components/charts/StackedBarChartCard';
-
-const MOCK_HISTORICAL_DATA = [
-  { name: 'July 11', value: 92 },
-  { name: 'July 12', value: 93 },
-  { name: 'July 13', value: 91 },
-  { name: 'July 14', value: 95 },
-  { name: 'July 15', value: 94 },
-];
-
-const MOCK_ENV_STACKED = [
-  { name: 'Development', passes: 80, failures: 15 },
-  { name: 'Staging', passes: 65, failures: 8 },
-  { name: 'Production', passes: 50, failures: 2 },
-];
-
-const MOCK_HEALING_PIE = [
-  { name: 'Locator Repaired', value: 45 },
-  { name: 'Wait Timeout Adjusted', value: 30 },
-  { name: 'Script Regenerated', value: 25 },
-];
+import { fetchExecutions, type ExecutionRow } from '../services/executionService';
+import { getHealingAnalytics } from '../services/healingService';
 
 export const AnalyticsPage: React.FC = () => {
+  const [executions, setExecutions] = useState<ExecutionRow[]>([]);
+  const [healingActions, setHealingActions] = useState<{ name: string; value: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [execs, healingSummary] = await Promise.allSettled([
+          fetchExecutions(50),
+          getHealingAnalytics(),
+        ]);
+        if (execs.status === 'fulfilled') {
+          setExecutions(execs.value);
+        }
+        if (healingSummary.status === 'fulfilled' && healingSummary.value?.actionTypeBreakdown) {
+          const formatted = Object.entries(healingSummary.value.actionTypeBreakdown).map(
+            ([name, value]) => ({ name, value })
+          );
+          setHealingActions(formatted);
+        }
+      } catch (e) {
+        console.error('Failed to fetch analytics live data', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  // Compute Live Historical Pass Rate
+  const passRateHistory = executions
+    .slice(0, 7)
+    .reverse()
+    .map((e, idx) => ({
+      name: e.startedAt ? e.startedAt.split(' ')[0] || `Run ${idx + 1}` : `Run ${idx + 1}`,
+      value: e.passRate,
+    }));
+
+  // Compute Live Environment Execution Outcomes
+  const envMap: Record<string, { passes: number; failures: number }> = {};
+  executions.forEach((e) => {
+    const env = e.environment || 'Staging';
+    if (!envMap[env]) {
+      envMap[env] = { passes: 0, failures: 0 };
+    }
+    if (e.status === 'success') {
+      envMap[env].passes += 1;
+    } else if (e.status === 'error') {
+      envMap[env].failures += 1;
+    }
+  });
+  const envStackedData = Object.entries(envMap).map(([name, counts]) => ({
+    name,
+    passes: counts.passes,
+    failures: counts.failures,
+  }));
+
   return (
     <div className="space-y-lg p-lg">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-text-main">Analytics Dashboard</h1>
-        <span className="text-sm text-text-muted">Aggregated Quality Platform Insights</span>
+        <div>
+          <h1 className="text-3xl font-bold text-text-main">Analytics Dashboard</h1>
+          <span className="text-sm text-text-muted">
+            {loading ? 'Loading live platform data...' : 'Aggregated Quality Platform Insights (Live Data)'}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
         <AreaChartCard
           title="Platform Pass Rate History (%)"
-          data={MOCK_HISTORICAL_DATA}
+          data={passRateHistory.length > 0 ? passRateHistory : [{ name: 'No Live Runs', value: 0 }]}
           dataKey="value"
           color="#10b981"
         />
         <StackedBarChartCard
           title="Environment Execution Outcomes (Stacked)"
-          data={MOCK_ENV_STACKED}
+          data={envStackedData.length > 0 ? envStackedData : [{ name: 'No Live Environment Runs', passes: 0, failures: 0 }]}
         />
       </div>
 
@@ -49,18 +92,13 @@ export const AnalyticsPage: React.FC = () => {
         <div className="lg:col-span-1">
           <PieChartCard
             title="Healing Operations Split"
-            data={MOCK_HEALING_PIE}
+            data={healingActions.length > 0 ? healingActions : [{ name: 'No Operations Logged', value: 0 }]}
           />
         </div>
         <div className="lg:col-span-2">
           <BarChartCard
-            title="Total LLM Call Retries per Agent"
-            data={[
-              { name: 'Analyst', value: 5 },
-              { name: 'Generator', value: 14 },
-              { name: 'Executor', value: 2 },
-              { name: 'Healer', value: 8 },
-            ]}
+            title="Active Workflow Execution Distribution by Environment"
+            data={envStackedData.length > 0 ? envStackedData.map(e => ({ name: e.name, value: e.passes + e.failures })) : [{ name: 'No Data', value: 0 }]}
             dataKey="value"
             color="#fbbf24"
           />

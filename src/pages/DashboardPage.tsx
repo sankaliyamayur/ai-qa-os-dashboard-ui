@@ -1,65 +1,119 @@
-import React from 'react';
-import { Play, CheckCircle, AlertTriangle, Cpu } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Play, CheckCircle, AlertTriangle, Cpu, RefreshCw } from 'lucide-react';
 import { MetricCard } from '../components/cards/MetricCard';
 import { AreaChartCard } from '../components/charts/AreaChartCard';
 import { BarChartCard } from '../components/charts/BarChartCard';
 import { PieChartCard } from '../components/charts/PieChartCard';
-
-const MOCK_AREA_DATA = [
-  { name: '09:00', value: 4000 },
-  { name: '10:00', value: 7500 },
-  { name: '11:00', value: 6200 },
-  { name: '12:00', value: 9000 },
-  { name: '13:00', value: 12000 },
-];
-
-const MOCK_BAR_DATA = [
-  { name: 'Locators', value: 12 },
-  { name: 'Timeouts', value: 8 },
-  { name: 'Assertions', value: 15 },
-  { name: 'Network', value: 5 },
-];
-
-const MOCK_PIE_DATA = [
-  { name: 'Chrome', value: 65 },
-  { name: 'Firefox', value: 20 },
-  { name: 'Safari', value: 15 },
-];
+import { fetchExecutions, type ExecutionRow } from '../services/executionService';
+import apiClient from '../config/apiClient';
 
 export const DashboardPage: React.FC = () => {
+  const [executions, setExecutions] = useState<ExecutionRow[]>([]);
+  const [bugBreakdown, setBugBreakdown] = useState<{ name: string; value: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const loadLiveData = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const [execData, bugRes] = await Promise.allSettled([
+        fetchExecutions(50),
+        apiClient.get<Record<string, number>>('/dashboard/bugs/breakdown'),
+      ]);
+
+      if (execData.status === 'fulfilled') {
+        setExecutions(execData.value);
+      }
+      if (bugRes.status === 'fulfilled' && bugRes.value.data) {
+        const breakdownObj = bugRes.value.data;
+        const formatted = Object.entries(breakdownObj).map(([name, value]) => ({ name, value }));
+        setBugBreakdown(formatted);
+      }
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLiveData();
+  }, []);
+
+  // Compute live dynamic metrics
+  const activePipelines = executions.filter(
+    (e) => e.status === 'info' || e.duration === 'Running'
+  ).length;
+
+  const avgPassRate =
+    executions.length > 0
+      ? Math.round(executions.reduce((acc, curr) => acc + curr.passRate, 0) / executions.length)
+      : 0;
+
+  // Compute Live Browser Share
+  const browserCounts: Record<string, number> = {};
+  executions.forEach((e) => {
+    const b = e.browser || 'Chromium';
+    browserCounts[b] = (browserCounts[b] || 0) + 1;
+  });
+  const pieData = Object.entries(browserCounts).map(([name, value]) => ({ name, value }));
+
+  // Compute Live Execution Pass Rate Trend for Area Chart
+  const areaData = executions
+    .slice(0, 7)
+    .reverse()
+    .map((e, idx) => ({
+      name: e.startedAt ? e.startedAt.split(' ')[1] || `Run ${idx + 1}` : `Run ${idx + 1}`,
+      value: e.passRate,
+    }));
+
   return (
     <div className="space-y-lg p-lg">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-text-main">Dashboard</h1>
-        <span className="text-sm text-text-muted">Live Platform Overview</span>
+        <div>
+          <h1 className="text-3xl font-bold text-text-main">Dashboard</h1>
+          <span className="text-sm text-text-muted">Live Platform Overview (Real Backend Data)</span>
+        </div>
+        <button
+          onClick={loadLiveData}
+          disabled={loading}
+          className="flex items-center px-md py-sm bg-bg-card hover:bg-bg-secondary text-text-main border border-bg-secondary rounded-md text-sm font-medium transition-colors cursor-pointer"
+        >
+          <RefreshCw className={`w-4 h-4 mr-xs ${loading ? 'animate-spin' : ''}`} /> Refresh Live Data
+        </button>
       </div>
+
+      {error && (
+        <div className="p-md bg-status-error/10 border border-status-error/30 rounded-md text-status-error text-sm">
+          Could not fetch live platform metrics from backend. Showing latest available system state.
+        </div>
+      )}
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
         <MetricCard
           title="Running Executions"
-          value="4"
-          description="Active workflow pipelines"
+          value={loading ? '...' : String(activePipelines)}
+          description="Active live workflow pipelines"
           icon={<Play className="w-5 h-5" />}
         />
         <MetricCard
           title="Success Rate"
-          value="94.2%"
-          description="Average test execution passes"
+          value={loading ? '...' : `${avgPassRate}%`}
+          description="Average pass rate across live executions"
           icon={<CheckCircle className="w-5 h-5 text-status-success" />}
-          trend={{ value: 1.2, isPositive: true }}
         />
         <MetricCard
-          title="Total Cost (LLM)"
-          value="$128.45"
-          description="Accumulated model billing"
+          title="Total Executions"
+          value={loading ? '...' : String(executions.length)}
+          description="Total recorded workflow runs"
           icon={<AlertTriangle className="w-5 h-5 text-status-warning" />}
-          trend={{ value: 4.8, isPositive: false }}
         />
         <MetricCard
-          title="System Memory"
-          value="42%"
-          description="Cluster resources active"
+          title="Platform Status"
+          value={loading ? '...' : executions.length > 0 ? 'Active' : 'Idle'}
+          description="Live cluster status"
           icon={<Cpu className="w-5 h-5" />}
         />
       </div>
@@ -68,8 +122,8 @@ export const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-md">
         <div className="lg:col-span-2">
           <AreaChartCard
-            title="Token Consumption Trend"
-            data={MOCK_AREA_DATA}
+            title="Execution Pass Rate Trend (%)"
+            data={areaData.length > 0 ? areaData : [{ name: 'No Data', value: 0 }]}
             dataKey="value"
             color="#4f46e5"
           />
@@ -77,7 +131,7 @@ export const DashboardPage: React.FC = () => {
         <div>
           <PieChartCard
             title="Browser Execution Share"
-            data={MOCK_PIE_DATA}
+            data={pieData.length > 0 ? pieData : [{ name: 'No Data', value: 0 }]}
           />
         </div>
       </div>
@@ -86,7 +140,7 @@ export const DashboardPage: React.FC = () => {
         <div className="lg:col-span-3">
           <BarChartCard
             title="Root-Cause Error Distribution"
-            data={MOCK_BAR_DATA}
+            data={bugBreakdown.length > 0 ? bugBreakdown : [{ name: 'No Failures Logged', value: 0 }]}
             dataKey="value"
             color="#ef4444"
           />

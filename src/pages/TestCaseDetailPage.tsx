@@ -28,7 +28,7 @@ export const TestCaseDetailPage: React.FC = () => {
     return (
       <div className="p-lg space-y-md text-center">
         <h2 className="text-xl font-bold text-text-main">Test Case Not Found</h2>
-        <p className="text-sm text-text-muted">The requested test case cannot be retrieved from the mock database.</p>
+        <p className="text-sm text-text-muted">The requested test case cannot be retrieved from the database.</p>
         <button
           onClick={() => navigate('/modules')}
           className="px-md py-sm bg-accent-primary text-white font-semibold rounded hover:bg-accent-hover transition-all text-xs"
@@ -108,6 +108,7 @@ export const TestCaseDetailPage: React.FC = () => {
             screenshotUrl={artifacts?.screenshotUrl}
             videoUrl={artifacts?.videoUrl}
             testName={tc.name}
+            status={tc.status}
           />
         )}
 

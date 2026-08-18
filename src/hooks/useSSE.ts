@@ -32,14 +32,17 @@ export const useSSE = (url: string) => {
       }
     };
 
-    eventSource.onmessage = (event) => {
+    const handlePayload = (event: MessageEvent) => {
       try {
         const parsed = JSON.parse(event.data);
         setData(parsed);
       } catch (err) {
-        console.error('Error parsing SSE telemetery payload:', err);
+        console.error('Error parsing SSE telemetry payload:', err);
       }
     };
+
+    eventSource.onmessage = handlePayload;
+    eventSource.addEventListener('live-metrics', handlePayload as EventListener);
 
     eventSource.onerror = () => {
       eventSource.close();
@@ -48,7 +51,6 @@ export const useSSE = (url: string) => {
       // Exponential Backoff Reconnection logic
       const nextDelay = Math.min(delayRef.current * 2, 30000); // cap at 30 seconds max
       delayRef.current = nextDelay;
-      console.warn(`SSE connection failed. Retrying in ${nextDelay}ms...`);
       
       reconnectTimeoutRef.current = window.setTimeout(() => {
         connect();

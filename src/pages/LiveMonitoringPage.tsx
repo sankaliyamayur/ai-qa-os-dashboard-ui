@@ -6,18 +6,18 @@ import { MetricCard } from '../components/cards/MetricCard';
 export const LiveMonitoringPage: React.FC = () => {
   const { data, status } = useSSE('/api/dashboard/live/stream');
 
-  // Fallback structure while stream initializes or mock data falls back
+  // Neutral initial structure while live stream connects
   const telemetry = data || {
-    runningPipelines: 2,
-    queueSize: 1,
-    activeAgents: 3,
-    cpuUsage: 24,
-    memoryUsage: 38,
-    redisConnected: true,
-    dbPoolActive: 15,
-    tokensPerSec: 140,
-    requestsPerSec: 2.4,
-    avgLatencyMs: 420,
+    runningPipelines: 0,
+    queueSize: 0,
+    activeAgents: 0,
+    cpuUsage: 0,
+    memoryUsage: 0,
+    redisConnected: false,
+    dbPoolActive: 0,
+    tokensPerSec: 0,
+    requestsPerSec: 0,
+    avgLatencyMs: 0,
   };
 
   return (

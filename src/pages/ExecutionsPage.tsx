@@ -6,46 +6,6 @@ import { MetricBadge } from '../components/common/MetricBadge';
 import { useQuery } from '../hooks/useQuery';
 import { fetchExecutions, type ExecutionRow } from '../services/executionService';
 
-
-const MOCK_ROWS: ExecutionRow[] = [
-  {
-    id: 'exec-101',
-    workflowName: 'Enterprise Login Pipeline',
-    startedAt: '2026-07-15 11:30',
-    duration: '2m 15s',
-    status: 'success',
-    passRate: 100,
-    environment: 'Staging',
-    browser: 'Chrome',
-    framework: 'Playwright',
-    triggeredBy: 'Jenkins CI',
-  },
-  {
-    id: 'exec-102',
-    workflowName: 'Payment Gateway Validation',
-    startedAt: '2026-07-15 11:02',
-    duration: '5m 40s',
-    status: 'error',
-    passRate: 60,
-    environment: 'Production',
-    browser: 'Firefox',
-    framework: 'Selenium',
-    triggeredBy: 'GitLab Runner',
-  },
-  {
-    id: 'exec-103',
-    workflowName: 'User Profile Settings Sync',
-    startedAt: '2026-07-15 10:45',
-    duration: '1m 10s',
-    status: 'success',
-    passRate: 100,
-    environment: 'Development',
-    browser: 'Safari',
-    framework: 'Cypress',
-    triggeredBy: 'John Doe',
-  },
-];
-
 export const ExecutionsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [envFilter, setEnvFilter] = useState('ALL');
@@ -59,8 +19,8 @@ export const ExecutionsPage: React.FC = () => {
     { ttl: 30_000 }
   );
 
-  // Fall back to mock data while loading or if API is unavailable
-  const rows: ExecutionRow[] = (apiRows && apiRows.length > 0) ? apiRows : MOCK_ROWS;
+  // Pure live data from backend API
+  const rows: ExecutionRow[] = apiRows ?? [];
 
   const filteredRows = rows.filter((row) => {
     const matchesSearch =
@@ -112,6 +72,7 @@ export const ExecutionsPage: React.FC = () => {
             className="w-full px-md py-sm bg-bg-secondary text-text-main rounded-md focus:outline-hidden focus:ring-2 focus:ring-accent-primary text-sm"
           >
             <option value="ALL">All Environments</option>
+            <option value="QA">QA</option>
             <option value="Development">Development</option>
             <option value="Staging">Staging</option>
             <option value="Production">Production</option>
