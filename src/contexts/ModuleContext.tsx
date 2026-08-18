@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import apiClient from '../config/apiClient';
 import { type Module } from '@/mock/modules';
 import { type TestCase } from '@/mock/testcases';
@@ -28,6 +28,7 @@ interface ModuleContextType {
   getTestCasesByModule: (moduleId: string) => TestCase[];
   getHistoryForTestCase: (testCaseId: string) => ExecutionHistoryItem[];
   resetFilters: () => void;
+  refetch: () => Promise<void>;
   loading: boolean;
 }
 
@@ -50,74 +51,78 @@ export const ModuleProvider = ({ children }: { children: ReactNode }) => {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [modRes, tcRes] = await Promise.all([
-          apiClient.get('/dashboard/modules'),
-          apiClient.get('/dashboard/testcases')
-        ]);
+  const fetchData = useCallback(async () => {
+    try {
+      const [modRes, tcRes] = await Promise.all([
+        apiClient.get('/dashboard/modules'),
+        apiClient.get('/dashboard/testcases')
+      ]);
 
-        // Normalize test cases first
-        const tcList = Array.isArray(tcRes?.data) ? tcRes.data : [];
-        const normalizedTCs = tcList.map((tc: any) => ({
-          ...tc,
-          moduleId: tc?.moduleId ?? tc?.module_id,
-          feature: tc?.feature ?? 'General',
-          status: tc?.status ?? 'Unknown',
-        }));
+      // Normalize test cases first
+      const tcList = Array.isArray(tcRes?.data) ? tcRes.data : [];
+      const normalizedTCs = tcList.map((tc: any) => ({
+        ...tc,
+        moduleId: tc?.moduleId ?? tc?.module_id,
+        feature: tc?.feature ?? 'General',
+        status: tc?.status ?? 'Unknown',
+      }));
 
-        // Normalize backend module fields & compute exact statistics from test cases
-        const modList = Array.isArray(modRes?.data) ? modRes.data : [];
-        const normalizedModules = modList.map((m: any) => {
-          const modTCs = normalizedTCs.filter((tc: any) => tc.moduleId === m?.id);
-          const hasTCs = modTCs.length > 0;
+      // Normalize backend module fields & compute exact statistics from test cases
+      const modList = Array.isArray(modRes?.data) ? modRes.data : [];
+      const normalizedModules = modList.map((m: any) => {
+        const modTCs = normalizedTCs.filter((tc: any) => tc.moduleId === m?.id);
+        const hasTCs = modTCs.length > 0;
+        
+        const passedCount = hasTCs 
+          ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'passed').length 
+          : Math.round(((m?.passRate ?? m?.pass_rate ?? 0) / 100) * (m?.totalTestCases ?? m?.total_test_cases ?? 0));
           
-          const passedCount = hasTCs 
-            ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'passed').length 
-            : Math.round(((m?.passRate ?? m?.pass_rate ?? 0) / 100) * (m?.totalTestCases ?? m?.total_test_cases ?? 0));
-            
-          const failedCount = hasTCs 
-            ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'failed').length 
-            : Math.round(((100 - (m?.passRate ?? m?.pass_rate ?? 0)) / 100) * (m?.totalTestCases ?? m?.total_test_cases ?? 0));
-            
-          const skippedCount = hasTCs 
-            ? modTCs.filter((tc: any) => {
-                const st = (tc.status ?? '').toLowerCase();
-                return st !== 'passed' && st !== 'failed';
-              }).length 
-            : 0;
+        const failedCount = hasTCs 
+          ? modTCs.filter((tc: any) => (tc.status ?? '').toLowerCase() === 'failed').length 
+          : Math.round(((100 - (m?.passRate ?? m?.pass_rate ?? 0)) / 100) * (m?.totalTestCases ?? m?.total_test_cases ?? 0));
+          
+        const skippedCount = hasTCs 
+          ? modTCs.filter((tc: any) => {
+              const st = (tc.status ?? '').toLowerCase();
+              return st !== 'passed' && st !== 'failed';
+            }).length 
+          : 0;
 
-          const totalCount = hasTCs ? modTCs.length : (m?.totalTestCases ?? m?.total_test_cases ?? 0);
-          const computedPassRate = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : (m?.passRate ?? m?.pass_rate ?? 0);
+        const totalCount = hasTCs ? modTCs.length : (m?.totalTestCases ?? m?.total_test_cases ?? 0);
+        const computedPassRate = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : (m?.passRate ?? m?.pass_rate ?? 0);
 
-          return {
-            id: m?.id ?? 'unknown',
-            name: m?.name ?? 'Unnamed Module',
-            description: m?.description ?? '',
-            requirementPath: m?.requirementPath ?? m?.requirement_path,
-            totalTests: totalCount,
-            passRate: computedPassRate,
-            passed: passedCount,
-            failed: failedCount,
-            skipped: skippedCount,
-            lastExecution: m?.lastRun ?? m?.last_run ?? '',
-            tenantId: m?.tenantId ?? m?.tenant_id,
-          };
-        });
+        return {
+          id: m?.id ?? 'unknown',
+          name: m?.name ?? 'Unnamed Module',
+          description: m?.description ?? '',
+          requirementPath: m?.requirementPath ?? m?.requirement_path,
+          totalTests: totalCount,
+          passRate: computedPassRate,
+          passed: passedCount,
+          failed: failedCount,
+          skipped: skippedCount,
+          lastExecution: m?.lastRun ?? m?.last_run ?? '',
+          tenantId: m?.tenantId ?? m?.tenant_id,
+        };
+      });
 
-        setTestCases(normalizedTCs);
-        setModules(normalizedModules);
-      } catch (err) {
-        console.error('Error fetching modules/testcases live data', err);
-        setModules([]);
-        setTestCases([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+      setTestCases(normalizedTCs);
+      setModules(normalizedModules);
+    } catch (err) {
+      console.error('Error fetching modules/testcases live data', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    // Live polling every 5 seconds so executing workflows update Module testcases automatically
+    const timer = setInterval(() => {
+      fetchData();
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [fetchData]);
 
   const getModuleById = (id: string) => {
     return modules.find(m => m.id === id);
@@ -153,6 +158,7 @@ export const ModuleProvider = ({ children }: { children: ReactNode }) => {
         getTestCasesByModule,
         getHistoryForTestCase,
         resetFilters,
+        refetch: fetchData,
         loading
       }}
     >
