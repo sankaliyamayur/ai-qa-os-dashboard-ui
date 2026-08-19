@@ -120,11 +120,19 @@ export const ExecutionDetailPage: React.FC = () => {
     () => fetchExecutionDetail(executionId!),
     [executionId]
   );
-  const { data: apiDetail } = useQuery(
+  const { data: apiDetail, refetch } = useQuery(
     `execution:${executionId}`,
     fetcher,
-    { ttl: 60_000, enabled: isRealId }
+    { ttl: 3_000, enabled: isRealId }
   );
+
+  React.useEffect(() => {
+    if (!isRealId) return;
+    const timer = setInterval(() => {
+      refetch();
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [isRealId, refetch]);
 
   // Merge API data over MOCK_DETAILS — keeps mock logs/timeline when API is offline
   const details = apiDetail ? { ...MOCK_DETAILS, ...apiDetail } : MOCK_DETAILS;

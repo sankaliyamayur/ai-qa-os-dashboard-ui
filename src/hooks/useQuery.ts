@@ -48,7 +48,7 @@ export function useQuery<T>(
   fetcher: () => Promise<T>,
   options: UseQueryOptions = {}
 ): UseQueryResult<T> {
-  const { ttl = 30_000, enabled = true } = options;
+  const { ttl = 3_000, enabled = true } = options;
 
   const [data, setData]       = useState<T | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);

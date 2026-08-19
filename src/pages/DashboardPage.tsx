@@ -39,6 +39,10 @@ export const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     loadLiveData();
+    const timer = setInterval(() => {
+      loadLiveData();
+    }, 3000);
+    return () => clearInterval(timer);
   }, []);
 
   // Compute live dynamic metrics
